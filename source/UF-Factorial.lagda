@@ -155,8 +155,6 @@ And therefore
 (4) (Y + 𝟙)' × (X ≃ Y)
   ≃ (X + 𝟙 ≃ Y + 𝟙)
 
-\end{code}
-
 
 \begin{code}
 
