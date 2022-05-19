@@ -576,8 +576,6 @@ TODO. Prove the properties / perform the constructions in
 UF-ImageAndSurjection. Better: reorganize the code so that reproving
 is not necessary.
 
-\end{code}
-
 Added 24 January 2020 (originally proved 19 November 2019) by Tom de Jong.
 
 It turns out that a proposition Y has size 𝓥 precisely if
