@@ -352,7 +352,7 @@ a given family:
 
 The first lemma we prove about `𝔡𝔦𝔯` is the fact that, given a family
 
-```
+```text
 S ∶≡ { jᵢ : 𝒪 X → 𝒪 X ∣ i ∶ I }
 ```
 
