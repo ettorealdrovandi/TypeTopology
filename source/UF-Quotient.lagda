@@ -474,3 +474,45 @@ module _
      h y = ≃-sym (Σ-change-of-variable (λ x → f x ≡ y) ⌜ φ ⌝ (⌜⌝-is-equiv φ))
 
 \end{code}
+
+TODO: Clean up
+
+\begin{code}
+
+record effective-set-quotients-exist : 𝓤ω where
+ field
+  _/_ : {𝓤 𝓥 : Universe} (X : 𝓤 ̇  ) → EqRel {𝓤} {𝓥} X → 𝓤 ⊔ 𝓥 ̇
+  η/ : {𝓤 𝓥 : Universe} {X : 𝓤 ̇  } (≋ : EqRel {𝓤} {𝓥} X) → X → X / ≋
+  η/-identifies-related-points : {𝓤 𝓥 : Universe}
+                                 {X : 𝓤 ̇  } (≋ : EqRel {𝓤} {𝓥} X)
+                               → identifies-related-points ≋ (η/ ≋)
+  /-is-effective : {𝓤 𝓥 : Universe}
+                   {X : 𝓤 ̇  } (≋ : EqRel {𝓤} {𝓥} X)
+                 → {x x' : X} → η/ ≋ x ≡ η/ ≋ x' → x ≈[ ≋ ] x'
+  /-is-set : {𝓤 𝓥 : Universe} {X : 𝓤 ̇  } (≋ : EqRel {𝓤} {𝓥} X) → is-set (X / ≋)
+  /-induction : {𝓤 𝓥 : Universe} {X : 𝓤 ̇  } (≋ : EqRel {𝓤} {𝓥} X)
+                {𝓦 : Universe} {P : X / ≋ → 𝓦 ̇  }
+              → ((x' : X / ≋) → is-prop (P x'))
+              → ((x : X) → P (η/ ≋ x)) → (y : X / ≋) → P y
+  /-universality : {𝓤 𝓥 : Universe} {X : 𝓤 ̇  } (≋ : EqRel {𝓤} {𝓥} X)
+                   {𝓦 : Universe} {Y : 𝓦 ̇  }
+                 → is-set Y → (f : X → Y)
+                 → identifies-related-points ≋ f
+                 → ∃! f̅ ꞉ (X / ≋ → Y) , f̅ ∘ η/ ≋ ∼ f
+
+
+ module _
+         {X : 𝓤 ̇  }
+         (≋@(_≈_ , ≈p , ≈r , ≈s , ≈t) : EqRel {𝓤} {𝓥} X)
+        where
+
+  ≈-coincides-with-quotient-equality : {x y : X} → (x ≈ y) ≃ (η/ ≋ x ≡ η/ ≋ y)
+  ≈-coincides-with-quotient-equality {x} {y} =
+   logically-equivalent-props-are-equivalent (≈p x y) (/-is-set ≋) f g
+    where
+     f : x ≈ y → η/ ≋ x ≡ η/ ≋ y
+     f = η/-identifies-related-points ≋
+     g : η/ ≋ x ≡ η/ ≋ y → x ≈ y
+     g = /-is-effective ≋
+
+\end{code}

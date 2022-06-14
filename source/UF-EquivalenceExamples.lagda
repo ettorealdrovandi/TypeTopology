@@ -754,8 +754,11 @@ NatΠ-equiv A B ζ fe i = vv-equivs-are-equivs
 ≡-cong-r : {X : 𝓤 ̇ } (x y : X) {y' : X} → y ≡ y' → (x ≡ y) ≃ (x ≡ y')
 ≡-cong-r x y refl = ≃-refl (x ≡ y)
 
+⁻¹-is-equiv : {X : 𝓤 ̇  } {x y : X} → is-equiv (_⁻¹ {𝓤} {X} {x} {y})
+⁻¹-is-equiv = (_⁻¹ , ⁻¹-involutive) , (_⁻¹ , ⁻¹-involutive)
+
 ≡-flip : {X : 𝓤 ̇ } {x y : X} → (x ≡ y) ≃ (y ≡ x)
-≡-flip = _⁻¹ , (_⁻¹ , ⁻¹-involutive) , (_⁻¹ , ⁻¹-involutive)
+≡-flip = _⁻¹ , ⁻¹-is-equiv
 
 singleton-≃ : {X : 𝓤 ̇ } {Y : 𝓥 ̇ } → is-singleton X → is-singleton Y → X ≃ Y
 singleton-≃ {𝓤} {𝓥} (c , φ) (d , γ) = (λ _ → d) , ((λ _ → c) , γ) , ((λ _ → c) , φ)
