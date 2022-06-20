@@ -33,6 +33,47 @@ is-connected X = (x y : X) → ∥ x ≡ y ∥
 is-groupoid : 𝓤 ̇  → 𝓤 ̇
 is-groupoid X = (x y : X) → is-set (x ≡ y)
 
+delooping-of-group-isomorphism : {X : 𝓤 ̇  } {Y : 𝓥 ̇  }
+                               → funext (𝓤 ⊔ 𝓥) (𝓤 ⊔ 𝓥)
+                               → is-connected X
+                               → is-connected Y
+                               → is-groupoid Y
+                               → (x₀ : X) (y₀ : Y)
+                               → (φ : (x₀ ≡ x₀) → (y₀ ≡ y₀))
+                               → is-equiv φ
+                               → ((p q : (x₀ ≡ x₀)) → φ (p ∙ q) ≡ φ p ∙ φ q)
+                               → X ≃ Y
+
+{--------------------------------------------}
+
+silly : {X : 𝓤 ̇  } {x y z : X} (p : x ≡ y) (q : y ≡ z) (r : x ≡ z)
+      → p ∙ q ≡ r
+      → q ≡ p ⁻¹ ∙ r
+silly refl refl refl refl = refl
+
+silly-converse : {X : 𝓤 ̇  } {x y z : X} (p : x ≡ y) (q : y ≡ z) (r : x ≡ z)
+               → q ≡ p ⁻¹ ∙ r
+               → p ∙ q ≡ r
+silly-converse p q refl refl = (right-inverse p) ⁻¹
+
+another-silly : {X : 𝓤 ̇  } {x y : X} (p q : x ≡ y)
+              → p ∙ (p ⁻¹ ∙ q) ≡ q
+another-silly p refl = (right-inverse p) ⁻¹
+
+foo2 : {X : 𝓤 ̇  } {x y z : X} (p : x ≡ y) (q : y ≡ z) (r : x ≡ z)
+     → (q ≡ p ⁻¹ ∙ r) → p ∙ q ∙ r ⁻¹ ≡ refl
+foo2 refl q refl refl = refl
+
+foo : {X : 𝓤 ̇  } {x y : X} (p : x ≡ y) (q : x ≡ y)
+    → (refl ≡ p ⁻¹ ∙ q) ≃ (refl ≡ p ∙ q ⁻¹)
+foo p refl = ≃-sym γ
+ where
+  γ : (refl ≡ p) ≃ (refl ≡ p ⁻¹)
+  γ = (ap _⁻¹)
+    , (embedding-embedding' _⁻¹ (equivs-are-embeddings _⁻¹ ⁻¹-is-equiv) refl p)
+
+{-----------------------------------------------}
+
 module construction
         {X : 𝓤 ̇  }
         {Y : 𝓥 ̇  }
@@ -79,46 +120,44 @@ module construction
   _≈_ : based-paths x y → based-paths x y → 𝓤 ⊔ 𝓥 ̇
   (p , q) ≈ (p' , q') = ∃ l ꞉ x₀ ≡ x₀ , (p ∙ l ≡ p') × (q ∙ φ l ≡ q')
 
-{-
-  _≈'_ : based-paths x y → based-paths x y → 𝓥 ̇
-  (p , q) ≈' (p' , q') = ∥ q ∙ φ (p ⁻¹ ∙ p') ≡ q' ∥
--}
-
-  _≈''_ : based-paths x y → based-paths x y → 𝓥 ̇
-  (p , q) ≈'' (p' , q') = ∥ φ (p ⁻¹ ∙ p') ≡ q ⁻¹ ∙ q' ∥
-
-{-
-  ≈-implies-≈' : (b c : based-paths x y) → b ≈ c → b ≈' c
-  ≈-implies-≈' (p , q) (p' , q') = ∥∥-functor γ
-   where
-    γ : (Σ l ꞉ x₀ ≡ x₀ , (p ∙ l ≡ p') × (q ∙ φ l ≡ q'))
-      → q ∙ φ (p ⁻¹ ∙ p') ≡ q'
-    γ (l , refl , refl) = q ∙ φ (p ⁻¹ ∙ (p ∙ l)) ≡⟨ ap (λ - → q ∙ φ -) ((∙assoc (p ⁻¹) p l) ⁻¹) ⟩
-                          q ∙ φ ((p ⁻¹ ∙ p) ∙ l) ≡⟨ ap (λ - → q ∙ φ (- ∙ l)) (left-inverse p) ⟩
-                          q ∙ φ (refl ∙ l)       ≡⟨ ap (λ - → q ∙ φ -) refl-left-neutral ⟩
-                          q ∙ φ l                ∎
-
-  ≈'-implies-≈ : (b c : based-paths x y) → b ≈' c → b ≈ c
-  ≈'-implies-≈ (p , q) (p' , q') = ∥∥-functor γ
-   where
-    γ : q ∙ φ (p ⁻¹ ∙ p') ≡ q'
-      → Σ l ꞉ x₀ ≡ x₀ , (p ∙ l ≡ p') × (q ∙ φ l ≡ q')
-    γ e = (p ⁻¹ ∙ p') , (p ∙ (p ⁻¹ ∙ p') ≡⟨ (∙assoc p (p ⁻¹) p') ⁻¹ ⟩
-                         (p ∙ p ⁻¹) ∙ p' ≡⟨ ap (_∙ p') ((right-inverse p) ⁻¹) ⟩
-                         refl ∙ p'       ≡⟨ refl-left-neutral ⟩
-                         p'              ∎)
-                      , e
-
-  ≈-and-≈'-coincide : {b c : based-paths x y} → (b ≈ c) ≃ (b ≈' c)
-  ≈-and-≈'-coincide {b} {c} = logically-equivalent-props-are-equivalent
-                               ∃-is-prop ∥∥-is-prop (≈-implies-≈' b c) (≈'-implies-≈ b c)
--}
-
-  ≈-and-≈''-coincide : {b c : based-paths x y} → (b ≈ c) ≃ (b ≈'' c)
-  ≈-and-≈''-coincide = {!!}
-
   ≈-is-prop-valued : is-prop-valued _≈_
   ≈-is-prop-valued _ _ = ∃-is-prop
+
+  _≈'_ : based-paths x y → based-paths x y → 𝓥 ̇
+  (p , q) ≈' (p' , q') = ∥ φ (p ⁻¹ ∙ p') ≡ q ⁻¹ ∙ q' ∥
+
+  ≈'-is-prop-valued : is-prop-valued _≈'_
+  ≈'-is-prop-valued _ _ = ∥∥-is-prop
+
+
+  ≈-implies-≈' : {b c : based-paths x y} → b ≈ c → b ≈' c
+  ≈-implies-≈' {(p , q)} {(p' , q')} = ∥∥-functor γ
+   where
+    γ : (Σ l ꞉ x₀ ≡ x₀ , (p ∙ l ≡ p') × (q ∙ φ l ≡ q'))
+      → φ (p ⁻¹ ∙ p') ≡ q ⁻¹ ∙ q'
+    γ (l , u , v) = silly q (φ (p ⁻¹ ∙ p')) q' e'
+     where
+      e : l ≡ p ⁻¹ ∙ p'
+      e = silly p l p' u
+      e' = q ∙ φ (p ⁻¹ ∙ p') ≡⟨ ap (λ - → q ∙ φ -) (e ⁻¹) ⟩
+           q ∙ φ l           ≡⟨ v ⟩
+           q'                ∎
+
+  ≈'-implies-≈ : {b c : based-paths x y} → b ≈' c → b ≈ c
+  ≈'-implies-≈ {(p , q)} {(p' , q')} = ∥∥-functor γ
+   where
+    γ : φ (p ⁻¹ ∙ p') ≡ q ⁻¹ ∙ q'
+      → Σ l ꞉ x₀ ≡ x₀ , (p ∙ l ≡ p') × (q ∙ φ l ≡ q')
+    γ e = (p ⁻¹ ∙ p') , another-silly p p'
+                      , silly-converse q (φ (p ⁻¹ ∙ p')) q' e
+
+  ≈-and-≈'-coincide : {b c : based-paths x y} → (b ≈ c) ≃ (b ≈' c)
+  ≈-and-≈'-coincide {b} {c} =
+   logically-equivalent-props-are-equivalent
+    (≈-is-prop-valued b c)
+    (≈'-is-prop-valued b c)
+    ≈-implies-≈'
+    ≈'-implies-≈
 
   ≈-is-reflexive : reflexive _≈_
   ≈-is-reflexive (p , q) = ∣ refl , refl , ap (q ∙_) φ-preserves-refl ∣
@@ -173,69 +212,9 @@ module construction
   ≋ : EqRel (based-paths x y)
   ≋ = _≈_ , ≈-is-equiv-relation
 
-{- --------------------------------------------------------------------------- -}
-
  ≈₀-normal-form : {y : Y} {p : x₀ ≡ x₀} {q : y ≡ y₀}
                 → (p , q) ≈ (refl , (q ∙ φ (p ⁻¹)))
  ≈₀-normal-form {y} {p} {q} = ∣ (p ⁻¹) , ((right-inverse p) ⁻¹) , refl ∣
-
-{-
- ≈₀-transport-lemma : {x : X} {y y' : Y} (e : y ≡ y') (q : y ≡ y₀)
-                   → transport (λ - → based-paths x₀ - / ≋) e (η/ ≋ (refl , q))
-                   ≡ η/ ≋ (refl , (e ⁻¹ ∙ q))
- ≈₀-transport-lemma refl q = ap (λ - → η/ ≋ (refl , -)) lem
-  where
-   lem = q           ≡⟨ refl-left-neutral ⁻¹ ⟩
-         refl ∙ q    ≡⟨ refl ⟩
-         refl ⁻¹ ∙ q ∎
-
- ≈₀-eq-lemma : {y y' : Y} (e : y ≡ y') (q : y ≡ y₀) (q' : y' ≡ y₀)
-             → (refl , (e ⁻¹ ∙ q)) ≈ (refl , q')
-             ≃ ∥ e ≡ q ∙ q' ⁻¹ ∥
- ≈₀-eq-lemma e q q' =
-  (refl , (e ⁻¹ ∙ q)) ≈ (refl , q') ≃⟨ ≈-and-≈'-coincide ⟩
-  ∥ e ⁻¹ ∙ q ∙ φ refl ≡ q' ∥        ≃⟨ γ e q q' ⟩
-  ∥ e ≡ q ∙ q' ⁻¹ ∥                 ■
-   where
-    γ : {y y' : Y} (e : y ≡ y') (q : y ≡ y₀) (q' : y' ≡ y₀)
-      → ∥ e ⁻¹ ∙ q ∙ φ refl ≡ q' ∥ ≃ ∥ e ≡ q ∙ q' ⁻¹ ∥
-    γ e refl refl = logically-equivalent-props-are-equivalent ∥∥-is-prop ∥∥-is-prop
-                     (∥∥-functor f) (∥∥-functor g)
-     where
-      f : e ⁻¹ ∙ φ refl ≡ refl → e ≡ refl
-      f p = e         ≡⟨ (⁻¹-involutive e) ⁻¹ ⟩
-            (e ⁻¹) ⁻¹ ≡⟨ ap _⁻¹ I ⟩
-            refl ⁻¹   ≡⟨ refl ⟩
-            refl      ∎
-       where
-        I = e ⁻¹          ≡⟨ refl ⟩
-            e ⁻¹ ∙ refl   ≡⟨ II   ⟩
-            e ⁻¹ ∙ φ refl ≡⟨ p    ⟩
-            refl          ∎
-         where
-          II = ap (e ⁻¹ ∙_) (φ-preserves-refl ⁻¹)
-      g : e ≡ refl → e ⁻¹ ∙ φ refl ≡ refl
-      g refl = refl ⁻¹ ∙ φ refl ≡⟨ refl              ⟩
-               refl ∙ φ refl    ≡⟨ refl-left-neutral ⟩
-               φ refl           ≡⟨ φ-preserves-refl  ⟩
-               refl             ∎
-
- ≈₀-η/-eq-lemma : {y y' : Y} (e : y ≡ y') (q : y ≡ y₀) (q' : y' ≡ y₀)
-                → (η/ ≋ (refl , (e ⁻¹ ∙ q)) ≡ η/ ≋ (refl , q'))
-                ≃ ∥ e ≡ q ∙ q' ⁻¹ ∥
- ≈₀-η/-eq-lemma e q q' =
-  (η/ ≋ (refl , (e ⁻¹ ∙ q)) ≡ η/ ≋ (refl , q')) ≃⟨ γ                  ⟩
-  ((refl , (e ⁻¹ ∙ q)) ≈ (refl , q'))           ≃⟨ ≈₀-eq-lemma e q q' ⟩
-  ∥ e ≡ q ∙ q' ⁻¹ ∥                             ■
-   where
-    γ = logically-equivalent-props-are-equivalent
-         (/-is-set ≋)
-         (≈-is-prop-valued _ _)
-         (/-is-effective ≋) -- NB: We use that the quotient is effective here
-         (η/-identifies-related-points ≋)
--}
-
-{- --------------------------------------------------------------------------- -}
 
  module _ (x : X) where
 
@@ -268,61 +247,52 @@ module construction
  ι-is-surjection : funext (𝓤 ⊔ 𝓥) (𝓤 ⊔ 𝓥) → is-surjection ι
  ι-is-surjection fe (y , q') = ι-is-surjection' fe q'
 
-{-
- foo : {A : 𝓣 ̇  } {a : A} (p : a ≡ a)
-     → (refl ≡ p) ≃ (refl ≡ p ⁻¹)
- foo p = qinveq f (g , {!!})
-  where
-   f : refl ≡ p → refl ≡ p ⁻¹
-   f refl = refl
-   g : refl ≡ p ⁻¹ → refl ≡ p
-   g e = refl ≡⟨ refl ⟩
-         refl ⁻¹ ≡⟨ ap _⁻¹ {!!} ⟩
-         (p ⁻¹)⁻¹ ≡⟨ {!!} ⟩
-         p ∎ -}
-
- foo : {A : 𝓣 ̇  } {a b : A} (p : a ≡ b) (q : a ≡ b)
-     → (refl ≡ p ⁻¹ ∙ q) ≃ (refl ≡ p ∙ q ⁻¹)
- foo p refl = ≃-sym γ
-  where
-   γ : (refl ≡ p) ≃ (refl ≡ p ⁻¹)
-   γ = (ap _⁻¹)
-     , (embedding-embedding' _⁻¹ (equivs-are-embeddings _⁻¹ ⁻¹-is-equiv) refl p)
-
- foo2 : {A : 𝓣 ̇  } {a b c : A} (p : a ≡ c) (q : b ≡ a) (r : b ≡ c)
-      → (p ≡ q ⁻¹ ∙ r) → q ∙ p ∙ r ⁻¹ ≡ refl
- foo2 p refl refl refl = refl
+ ι-fiber-equiv : is-groupoid Y → (s : domain ι) → fiber ι (ι s) ≃ domain ι
+ ι-fiber-equiv Y-is-grpd (y , q) =
+  fiber ι (ι (y , q))                              ≃⟨ ≃-refl _   ⟩
+  (Σ (y' , q') ꞉ S , ι (y' , q') ≡ ι (y , q))      ≃⟨ I          ⟩
+  (Σ (y' , q') ꞉ S , Σ e ꞉ y' ≡ y , T (y' , q') e) ≃⟨ II         ⟩
+  (Σ (y' , q') ꞉ S , Σ e ꞉ y' ≡ y , e ≡ q' ∙ q ⁻¹) ≃⟨ III        ⟩
+  (Σ (y' , q') ꞉ S , 𝟙 {𝓥})                        ≃⟨ ≃-refl _   ⟩
+  S × 𝟙                                            ≃⟨ 𝟙-rneutral ⟩
+  S                                                ■
+   where
+    I   = Σ-cong (λ s → Σ-≡-≃)
+    III = Σ-cong (λ (y' , q') →
+                    singleton-≃-𝟙 (singleton-types'-are-singletons (q' ∙ q ⁻¹)))
+    S : 𝓥 ̇
+    S = domain ι
+    T : ((y' , q') : S) → y' ≡ y → 𝓤 ⊔ 𝓥 ̇
+    T (y' , q') e = transport (λ - → based-paths x₀ - / ≋) e
+                              (ι₂ (y' , q')) ≡ (ι₂ (y , q))
+    II = Σ-cong (λ s → Σ-cong (λ e → h s e))
+     where
+      h : ((y' , q') : S) (e : y' ≡ y) → T (y' , q') e ≃ (e ≡ q' ∙ q ⁻¹)
+      h (y' , q') refl =
+       (η/ ≋ (refl , q') ≡ η/ ≋ (refl , q)) ≃⟨ I'       ⟩
+       ((refl , q') ≈ (refl , q))           ≃⟨ II'      ⟩
+       ((refl , q') ≈' (refl , q))          ≃⟨ ≃-refl _ ⟩
+       ∥ φ refl ≡ q' ⁻¹ ∙ q ∥               ≃⟨ III'     ⟩
+       (φ refl ≡ q' ⁻¹ ∙ q)                 ≃⟨ IV'      ⟩
+       (refl ≡ q' ⁻¹ ∙ q)                   ≃⟨ V'       ⟩
+       (refl ≡ q' ∙ q ⁻¹)                   ■
+        where
+         I'   = ≃-sym (≈-coincides-with-quotient-equality ≋)
+         II'  = ≈-and-≈'-coincide
+         III' = prop-is-equivalent-to-its-truncation (Y-is-grpd _ _)
+         IV'  = ≡-cong-l _ _ φ-preserves-refl
+         V'   = foo q' q
 
  ι-is-embedding : is-groupoid Y → is-embedding ι
- ι-is-embedding Y-grpd = embedding-criterion ι γ
+ ι-is-embedding Y-is-grpd = embedding-criterion ι γ
   where
-   γ : (s : singleton-type' y₀) → is-prop (fiber ι (ι s))
-   γ (y , q) = equiv-to-prop ⦅1⦆ ⦅2⦆
+   γ : (s : domain ι) → is-prop (fiber ι (ι s))
+   γ s = equiv-to-prop ⦅1⦆ ⦅2⦆
     where
-     S : 𝓥 ̇
-     S = singleton-type' y₀
-     ⦅2⦆ : is-prop S
+     ⦅1⦆ : fiber ι (ι s) ≃ domain ι
+     ⦅1⦆ = ι-fiber-equiv Y-is-grpd s
+     ⦅2⦆ : is-prop (domain ι)
      ⦅2⦆ = singletons-are-props (singleton-types'-are-singletons y₀)
-     T : ((y' , q') : S) (e : y' ≡ y) → 𝓤 ⊔ 𝓥 ̇
-     T (y' , q') e =
-      transport (λ - → based-paths x₀ - / ≋) e (ι₂ (y' , q')) ≡ (ι₂ (y , q))
-     h : ((y' , q') : S) (e : y' ≡ y)
-       → T (y' , q') e ≃ (e ≡ q' ∙ q ⁻¹)
-     h (y' , q') refl =
-      (η/ ≋ (refl , q') ≡ η/ ≋ (refl , q)) ≃⟨ ≃-sym (≈-coincides-with-quotient-equality ≋) ⟩
-      ((refl , q') ≈ (refl , q))           ≃⟨ ≈-and-≈''-coincide ⟩
-      ((refl , q') ≈'' (refl , q))         ≃⟨ ≃-refl _ ⟩
-      ∥ φ refl ≡ q' ⁻¹ ∙ q ∥               ≃⟨ prop-is-equivalent-to-its-truncation (Y-grpd _ _) ⟩
-      (φ refl ≡ q' ⁻¹ ∙ q)                 ≃⟨ ≡-cong-l _ _ φ-preserves-refl ⟩
-      (refl ≡ q' ⁻¹ ∙ q)                   ≃⟨ foo q' q ⟩
-      (refl ≡ q' ∙ q ⁻¹)                   ■
-     ⦅1⦆ = fiber ι (ι (y , q))                             ≃⟨ ≃-refl _ ⟩
-          (Σ (y' , q') ꞉ S , ι (y' , q') ≡ ι (y , q))      ≃⟨ Σ-cong (λ s → Σ-≡-≃) ⟩
-          (Σ (y' , q') ꞉ S , Σ e ꞉ y' ≡ y , T (y' , q') e) ≃⟨ Σ-cong (λ s → Σ-cong (λ e → h s e)) ⟩
-          (Σ (y' , q') ꞉ S , Σ e ꞉ y' ≡ y , e ≡ q' ∙ q ⁻¹) ≃⟨ Σ-cong (λ (y' , q') → singleton-≃-𝟙 (singleton-types'-are-singletons (q' ∙ q ⁻¹))) ⟩
-          (Σ (y' , q') ꞉ S , 𝟙 {𝓥})                        ≃⟨ ≃-refl _ ⟩
-          S × 𝟙                                            ≃⟨ 𝟙-rneutral ⟩
-          S                                                ■
 
  ι-is-equiv : funext (𝓤 ⊔ 𝓥) (𝓤 ⊔ 𝓥) → is-groupoid Y → is-equiv ι
  ι-is-equiv fe Y-grpd = surjective-embeddings-are-equivs ι
@@ -397,36 +367,26 @@ module construction
        → ∥ Σ pₓ ꞉   x ≡ x₀ , Σ pₓ' ꞉   x' ≡ x₀
          , Σ qₓ ꞉ f x ≡ y₀ , Σ qₓ' ꞉ f x' ≡ y₀
          , ap f ∼ ⌜ E₂ qₓ qₓ' ⌝ ∘ φ ∘ ⌜ E₁ pₓ pₓ' ⌝ ∥
-   baz x x' = ∥∥-rec₂ ∥∥-is-prop γ (η/-is-surjection (pr₂ (κ x))) (η/-is-surjection (pr₂ (κ x'))) -- TODO: Clean
+   baz x x' = ∥∥-rec₂ ∥∥-is-prop γ (η/-is-surjection (pr₂ (κ x))) (η/-is-surjection (pr₂ (κ x')))
     where
-     T : 𝓤 ⊔ 𝓥 ̇
-     T = Σ pₓ ꞉   x ≡ x₀ , Σ pₓ' ꞉   x' ≡ x₀
-       , Σ qₓ ꞉ f x ≡ y₀ , Σ qₓ' ꞉ f x' ≡ y₀
-       , ap f ∼ ⌜ E₂ qₓ qₓ' ⌝ ∘ φ ∘ ⌜ E₁ pₓ pₓ' ⌝
      γ : (Σ b  ꞉ based-paths x  (f x)  , η/ ≋ b  ≡ pr₂ (κ x) )
        → (Σ b' ꞉ based-paths x' (f x') , η/ ≋ b' ≡ pr₂ (κ x'))
-       → ∥ T ∥
+       → ∥ Σ pₓ ꞉   x ≡ x₀ , Σ pₓ' ꞉   x' ≡ x₀
+         , Σ qₓ ꞉ f x ≡ y₀ , Σ qₓ' ꞉ f x' ≡ y₀
+         , ap f ∼ ⌜ E₂ qₓ qₓ' ⌝ ∘ φ ∘ ⌜ E₁ pₓ pₓ' ⌝ ∥
      γ ((pₓ , qₓ) , e) ((pₓ' , qₓ') , e') = ∣ pₓ , pₓ' , qₓ , qₓ' , blah ∣
       where
        blah : (p : x ≡ x') → ap f p ≡ (⌜ E₂ qₓ qₓ' ⌝ ∘ φ ∘ ⌜ E₁ pₓ pₓ' ⌝) p
-       blah refl = ∥∥-rec (Y-grpd (f x) (f x)) minor (/-is-effective ≋ (e ∙ e' ⁻¹))
+       blah refl = ∥∥-rec (Y-grpd (f x) (f x)) bzzz
+                          (≈-implies-≈' (/-is-effective ≋ (e ∙ e' ⁻¹)))
         where
-         minor : (Σ l ꞉ x₀ ≡ x₀ , (pₓ ∙ l ≡ pₓ') × (qₓ ∙ φ l ≡ qₓ')) -- TODO: Use ≈'' and foo2 here
-               → ap f refl ≡ (⌜ E₂ qₓ qₓ' ⌝ ∘ φ ∘ ⌜ E₁ pₓ pₓ' ⌝) refl
-         minor (l , u , v) =
-          ap f refl ≡⟨ refl ⟩
-          refl ≡⟨ right-inverse qₓ' ⟩
-          qₓ' ∙ qₓ' ⁻¹ ≡⟨ ap (_∙ qₓ' ⁻¹) (v ⁻¹) ⟩
-          qₓ ∙ φ l ∙ qₓ' ⁻¹ ≡⟨ ap (λ - → qₓ ∙ φ - ∙ qₓ' ⁻¹) kkk ⟩
-          qₓ ∙ φ (pₓ ⁻¹ ∙ pₓ') ∙ qₓ' ⁻¹            ≡⟨ refl ⟩
-          (⌜ E₂ qₓ qₓ' ⌝ ∘ φ ∘ ⌜ E₁ pₓ pₓ' ⌝) refl ∎
+         bzzz : φ (pₓ ⁻¹ ∙ pₓ') ≡ qₓ ⁻¹ ∙ qₓ'
+              → ap f refl ≡ (⌜ E₂ qₓ qₓ' ⌝ ∘ φ ∘ ⌜ E₁ pₓ pₓ' ⌝) refl
+         bzzz φ-eq = refl                                     ≡⟨ I    ⟩
+                     qₓ ∙ φ (pₓ ⁻¹ ∙ pₓ') ∙ qₓ' ⁻¹            ≡⟨ refl ⟩
+                     (⌜ E₂ qₓ qₓ' ⌝ ∘ φ ∘ ⌜ E₁ pₓ pₓ' ⌝) refl ∎
           where
-           kkk : l ≡ pₓ ⁻¹ ∙ pₓ'
-           kkk = l                ≡⟨ refl-left-neutral ⁻¹ ⟩
-                 refl ∙ l         ≡⟨ ap (_∙ l) ((left-inverse pₓ) ⁻¹) ⟩
-                 (pₓ ⁻¹ ∙ pₓ) ∙ l ≡⟨ ∙assoc (pₓ ⁻¹) pₓ l ⟩
-                 pₓ ⁻¹ ∙ (pₓ ∙ l) ≡⟨ ap (pₓ ⁻¹ ∙_) u ⟩
-                 pₓ ⁻¹ ∙ pₓ'      ∎
+           I = (foo2 qₓ (φ (pₓ ⁻¹ ∙ pₓ')) qₓ' φ-eq) ⁻¹
 
    ap-f-is-equiv : (x x' : X) → is-equiv (ap f {x} {x'})
    ap-f-is-equiv x x' = ∥∥-rec (being-equiv-is-prop' fe₁ fe₂ fe₃ fe₄ (ap f))
@@ -456,21 +416,24 @@ module construction
    f-is-equiv : is-connected Y → is-equiv f
    f-is-equiv Y-con = surjective-embeddings-are-equivs f f-is-embedding (f-is-surjection Y-con)
 
--- Repackaging
+-- Final proof
 
-theorem : {X : 𝓤 ̇  } {Y : 𝓥 ̇  }
-        → funext (𝓤 ⊔ 𝓥) (𝓤 ⊔ 𝓥)
-        → is-connected X
-        → is-connected Y
-        → is-groupoid Y
-        → (x₀ : X) (y₀ : Y)
-        → (φ : (x₀ ≡ x₀) ≃ (y₀ ≡ y₀))
-        → ((p q : (x₀ ≡ x₀)) → ⌜ φ ⌝ (p ∙ q) ≡ ⌜ φ ⌝ p ∙ ⌜ φ ⌝ q)
-        → X ≃ Y
-theorem fe X-con Y-con Y-grpd x₀ y₀ (φ , φ-is-equiv) φ-preserves-∙ =
-   f          fe Y-grpd X-con
- , f-is-equiv fe Y-grpd X-con Y-con
-  where
-   open construction x₀ y₀ φ φ-is-equiv (λ {p} {q} → φ-preserves-∙ p q)
+delooping-of-group-isomorphism = γ
+ where
+  γ : {X : 𝓤 ̇  } {Y : 𝓥 ̇  }
+    → funext (𝓤 ⊔ 𝓥) (𝓤 ⊔ 𝓥)
+    → is-connected X
+    → is-connected Y
+    → is-groupoid Y
+    → (x₀ : X) (y₀ : Y)
+    → (φ : (x₀ ≡ x₀) → (y₀ ≡ y₀))
+    → is-equiv φ
+    → ((p q : (x₀ ≡ x₀)) → φ (p ∙ q) ≡ φ p ∙ φ q)
+    → X ≃ Y
+  γ fe X-con Y-con Y-grpd x₀ y₀ φ φ-is-equiv φ-preserves-∙ =
+     f          fe Y-grpd X-con
+   , f-is-equiv fe Y-grpd X-con Y-con
+   where
+    open construction x₀ y₀ φ φ-is-equiv (λ {p} {q} → φ-preserves-∙ p q)
 
 \end{code}
