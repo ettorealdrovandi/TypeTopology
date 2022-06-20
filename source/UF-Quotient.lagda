@@ -515,4 +515,15 @@ record effective-set-quotients-exist : 𝓤ω where
      g : η/ ≋ x ≡ η/ ≋ y → x ≈ y
      g = /-is-effective ≋
 
+  module _
+          (pt : propositional-truncations-exist)
+         where
+
+   open import UF-ImageAndSurjection
+   open ImageAndSurjection pt
+   open PropositionalTruncation pt
+
+   η/-is-surjection : is-surjection (η/ ≋)
+   η/-is-surjection = /-induction ≋ (λ _ → ∃-is-prop) (λ b → ∣ b , refl ∣)
+
 \end{code}
