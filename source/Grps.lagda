@@ -99,18 +99,18 @@ private
              (λ p → Π-is-prop fe'
                               (λ l → Y-is-groupoid y y₀))
 
-  B : (x : X) (y : Y) → 𝓤 ⊔ 𝓥 ̇
-  B x y = Σ ω ꞉ (x ≡ x₀ → y ≡ y₀) , is-related-to-φ ω
+  map-related-to-φ : (x : X) (y : Y) → 𝓤 ⊔ 𝓥 ̇
+  map-related-to-φ x y = Σ ω ꞉ (x ≡ x₀ → y ≡ y₀) , is-related-to-φ ω
 
   C : (x : X) → 𝓤 ⊔ 𝓥 ̇
-  C x = Σ y ꞉ Y , B x y
+  C x = Σ y ꞉ Y , map-related-to-φ x y
 
   module _ (y : Y) where
 
-   σ : B x₀ y → y ≡ y₀
+   σ : map-related-to-φ x₀ y → y ≡ y₀
    σ (ω , ω-eq) = ω refl
 
-   τ : (q : y ≡ y₀) → B x₀ y
+   τ : (q : y ≡ y₀) → map-related-to-φ x₀ y
    τ q = ω , ω-eq
     where
      ω : x₀ ≡ x₀ → y ≡ y₀
@@ -159,7 +159,7 @@ private
   C₀-is-singleton Y-is-groupoid =
    equiv-to-singleton e (singleton-types'-are-singletons y₀)
     where
-     e : (Σ y ꞉ Y , B x₀ y) ≃ (Σ y ꞉ Y , y ≡ y₀)
+     e : (Σ y ꞉ Y , map-related-to-φ x₀ y) ≃ (Σ y ꞉ Y , y ≡ y₀)
      e = Σ-cong (λ y → (σ y , σ-is-equiv y Y-is-groupoid))
 
   module construction-with-further-assumptions
