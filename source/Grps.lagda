@@ -1,6 +1,6 @@
 \begin{code}
 
-{-# OPTIONS --without-K --exact-split --safe --auto-inline --experimental-lossy-unification #-}
+{-# OPTIONS --without-K --exact-split --safe --auto-inline #-}
 
 open import UF-PropTrunc
 open import UF-Quotient
@@ -69,7 +69,16 @@ delooping-group-homomorphism : (X : pointed-type 𝓤) (Y : pointed-type 𝓥)
                              → is-groupoid ⟨ Y ⟩
                              → (φ : Ω X → Ω Y)
                              → is-Ω-group-homomorphism φ
-                             → Σ f ꞉ pointed-map X Y , Ω-functor f ≡ φ
+                             → Σ 𝕗 ꞉ pointed-map X Y , Ω-functor 𝕗 ≡ φ
+
+delooping-group-homomorphism-is-unique : (X : pointed-type 𝓤)
+                                         (Y : pointed-type 𝓥)
+                                       → funext (𝓤 ⊔ 𝓥) (𝓤 ⊔ 𝓥)
+                                       → is-connected ⟨ X ⟩
+                                       → is-groupoid ⟨ Y ⟩
+                                       → (φ : Ω X → Ω Y)
+                                       → is-Ω-group-homomorphism φ
+                                       → ∃! 𝕗 ꞉ pointed-map X Y , Ω-functor 𝕗 ≡ φ
 
 private
  module construction
@@ -230,6 +239,58 @@ private
        III = ap (_∙ φ l) (left-inverse (ω x₀ refl))
        IV  = refl-left-neutral
 
+   ≡-lemma : {A : 𝓣 ̇  } {a b : A} (p : a ≡ a) (q : a ≡ b) (r : b ≡ b)
+           → q ⁻¹ ∙ p ∙ q ≡ r
+           → p ∙ q ≡ q ∙ r
+   ≡-lemma p refl r refl = (refl ∙ (refl ∙ p) ≡⟨ refl-left-neutral ⟩
+                            refl ∙ p          ≡⟨ refl-left-neutral ⟩
+                            p                 ∎) ⁻¹
+
+   delooping-is-unique : (𝕘 : pointed-map (X , x₀) (Y , y₀))
+                       → Ω-functor 𝕘 ∼ φ
+                       → 𝕗 ≡ 𝕘
+   delooping-is-unique 𝕘@(g , k₀) e = 𝕗    ≡⟨ by-definition     ⟩
+                                      π κᶠ ≡⟨ ap π κᶠ-equals-κᵍ ⟩
+                                      π κᵍ ≡⟨ by-definition     ⟩
+                                      𝕘    ∎
+    where
+     κᶠ : (x : X) → C x
+     κᶠ = κ
+     κᵍ : (x : X) → C x
+     κᵍ x = g x , ωᵍ , ωᵍ-eq
+      where
+       ωᵍ : x ≡ x₀ → g x ≡ y₀
+       ωᵍ refl = k₀
+       ωᵍ-fact : (p : x ≡ x₀) → ωᵍ p ≡ ap g p ∙ k₀
+       ωᵍ-fact refl = refl-left-neutral ⁻¹
+
+       ωᵍ-eq : is-related-to-φ ωᵍ
+       ωᵍ-eq refl l = ωᵍ (refl ∙ l)          ≡⟨ I                   ⟩
+                      ωᵍ l                   ≡⟨ use-ωᵍ-fact₁        ⟩
+                      ap g l ∙ k₀            ≡⟨ use-assumption-on-𝕘 ⟩
+                      k₀ ∙ φ l               ≡⟨ II                  ⟩
+                      refl ∙ (k₀ ∙ φ l)      ≡⟨ by-definition       ⟩
+                      ap g refl ∙ (k₀ ∙ φ l) ≡⟨ III                 ⟩
+                      (ap g refl ∙ k₀) ∙ φ l ≡⟨ use-ωᵍ-fact₂        ⟩
+                      ωᵍ refl ∙ φ l          ∎
+        where
+         use-assumption-on-𝕘 = ≡-lemma (ap g l) k₀ (φ l) (e l)
+         use-ωᵍ-fact₁ = ωᵍ-fact l
+         use-ωᵍ-fact₂ = ap (_∙ φ l) (ωᵍ-fact refl) ⁻¹
+         I   = ap ωᵍ refl-left-neutral
+         II  = refl-left-neutral ⁻¹
+         III = (∙assoc (ap g refl) k₀ (φ l)) ⁻¹
+
+     κᶠ-equals-κᵍ : κᶠ ≡ κᵍ
+     κᶠ-equals-κᵍ = Π-is-prop (lower-funext 𝓥 𝓤₀ fe) Cs-are-props κᶠ κᵍ
+      where
+       Cs-are-props : (x : X) → is-prop (C x)
+       Cs-are-props x = singletons-are-props (Cs-are-singletons x)
+
+     π : ((x : X) → C x) → pointed-map (X , x₀) (Y , y₀)
+     π γ = (λ x → pr₁ (γ x)) , pr₁ (pr₂ (γ x₀)) refl
+
+
 delooping-group-homomorphism (X , x₀) (Y , y₀) fe X-is-connected Y-is-groupoid
                              φ (φ-preserves-refl , φ-preserves-∙) = conclusion
   where
@@ -238,5 +299,30 @@ delooping-group-homomorphism (X , x₀) (Y , y₀) fe X-is-connected Y-is-groupo
 
    conclusion : Σ f ꞉ pointed-map (X , x₀) (Y , y₀) , Ω-functor f ≡ φ
    conclusion = 𝕗 , Ω-functor-𝕗-is-specified-Ω-group-homomorphism
+
+
+delooping-group-homomorphism-is-unique 𝕏@(X , x₀) 𝕐@(Y , y₀) fe
+                                       X-is-connected Y-is-groupoid
+                                       φ (φ-preserves-refl , φ-preserves-∙) =
+ conclusion
+  where
+   open construction fe x₀ y₀ φ φ-preserves-refl φ-preserves-∙
+   open construction-with-further-assumptions X-is-connected Y-is-groupoid
+
+   conclusion : ∃! 𝕗 ꞉ pointed-map 𝕏 𝕐 , Ω-functor 𝕗 ≡ φ
+   conclusion = δ , lemma
+    where
+     δ : Σ 𝕗 ꞉ pointed-map 𝕏 𝕐 , Ω-functor 𝕗 ≡ φ
+     δ = delooping-group-homomorphism 𝕏 𝕐 fe
+                                      X-is-connected Y-is-groupoid
+                                      φ (φ-preserves-refl , φ-preserves-∙)
+     lemma : is-central (Σ 𝕗 ꞉ pointed-map 𝕏 𝕐 , Ω-functor 𝕗 ≡ φ) δ
+     lemma (𝕗 , 𝕗-eq) = to-subtype-≡ condition-is-prop
+                                     (delooping-is-unique 𝕗 (happly 𝕗-eq))
+      where
+       condition-is-prop : (𝕘 : pointed-map 𝕏 𝕐) → is-prop (Ω-functor 𝕘 ≡ φ)
+       condition-is-prop 𝕘 =
+        equiv-to-prop (≃-funext fe' (Ω-functor 𝕘) φ)
+                                    (Π-is-prop fe' (λ _ → Y-is-groupoid y₀ y₀))
 
 \end{code}
