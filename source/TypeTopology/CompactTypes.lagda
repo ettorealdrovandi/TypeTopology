@@ -88,6 +88,7 @@ open import NotionsOfDecidability.DecidableAndDetachable public
 open import UF.Base
 open import UF.Subsingletons renaming (⊤Ω to ⊤ ; ⊥Ω to ⊥)
 open import UF.Subsingletons-FunExt
+open import UF.Subsingleton-Combinators
 open import UF.FunExt
 open import UF.Retracts
 open import UF.Equiv
@@ -729,8 +730,33 @@ Compact-resizeup C = compact-gives-Compact (Compact-gives-compact C)
 \end{code}
 
 TODO. Prove the converse of the previous observation, using the fact
-that any decidable proposition is logically equivalent to either 𝟘 or
+that any decidable proposition is logically equivalent to either ↔ 𝟘 or
 𝟙, and hence to a type in the universe 𝓤₀.
+
+\begin{code}
+
+¬′_ : 𝓤 ̇ → 𝓤 ̇
+¬′_ {𝓤} A = A → 𝟘 {𝓤}
+
+𝟘₀-implies-𝟘 : 𝟘 {𝓤₀} → 𝟘 {𝓤}
+𝟘₀-implies-𝟘 = λ ()
+
+𝟙₀-implies-𝟙 : 𝟙 {𝓤₀} → 𝟙 {𝓤}
+𝟙₀-implies-𝟙 ⋆ = ⋆
+
+lemma : {X : 𝓤 ̇} → decidable X → (X ⇔ 𝟙 {𝓤}) + (X ⇔ 𝟘 {𝓤})
+lemma (inl x) = inl ((λ _ → ⋆) , λ { tt → x })
+lemma (inr p) = inr ((λ x → 𝟘₀-implies-𝟘 (p x)) , λ ())
+
+Compact-decidable : {X : 𝓤 ̇} → Compact X {𝓥} → decidable X
+Compact-decidable C = {!!}
+
+Compact-resizedown : {X : 𝓤  ̇} → Compact X {𝓥} → Compact X {𝓤₀}
+Compact-resizedown {X = X} C = {!!}
+ where
+  foo = {!Compact-decidable!}
+
+\end{code}
 
 \begin{code}
 
