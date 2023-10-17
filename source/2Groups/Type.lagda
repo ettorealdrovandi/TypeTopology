@@ -10,7 +10,7 @@ in another parlance.
 
 \begin{code}
 
-{-# OPTIONS --without-K --safe --auto-inline --exact-split #-}
+{-# OPTIONS --without-K --safe  --exact-split #-}
 
 open import MLTT.Spartan
 open import UF.Base

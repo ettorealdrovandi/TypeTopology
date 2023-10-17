@@ -13,7 +13,7 @@ path identifications hold automatically.
 
 \begin{code}
 
-{-# OPTIONS --without-K --exact-split --safe --auto-inline #-}
+{-# OPTIONS --without-K --exact-split --safe  #-}
 
 module 2Groups.Groups where
 
