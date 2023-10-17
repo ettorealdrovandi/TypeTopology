@@ -69,11 +69,11 @@ both sides of the ⊗-structure.
 
 \begin{code}
 
-⊗-structure-to-Id₂ : (X : 𝓤 ̇) → (_●_ : ⊗-structure X)
+⊗-structure-to-Id₂ : (X : 𝓤 ̇) (_●_ : ⊗-structure X)
                     → ⊗-structure-Id X _●_
 ⊗-structure-to-Id₂ X _●_ = ap₂ _●_
 
-⊗-structure-to-Id₂-∙ : {X : 𝓤 ̇} → (_●_ : ⊗-structure X)
+⊗-structure-to-Id₂-∙ : {X : 𝓤 ̇} (_●_ : ⊗-structure X)
                      → {x x' x'' y y' y'' : X}
                      → (p : x ＝ x') (p' : x' ＝ x'')
                      → (q : y ＝ y') (q' : y' ＝ y'')
@@ -620,33 +620,25 @@ diagrams:
 \begin{code}
 
   have-left-right-neutral-compat : left-right-neutral-compatibility X _●_ e 𝓵 𝓻
-  have-left-right-neutral-compat = cancel-left (lemma-4 ⁻¹)
+  have-left-right-neutral-compat = cancel-left (lemma-3 ⁻¹)
     where
-      lemma-1 : (𝓻 e) ✶ refl ＝ 𝓻 (e ● e)
-      lemma-1 = (𝓻 e) ✶ refl                         ＝⟨ ap (((𝓻 e) ✶ refl) ∙_) (right-inverse (𝓻 e)) ⟩
-                ((𝓻 e) ✶ refl) ∙ ((𝓻 e) ∙ (𝓻 e) ⁻¹) ＝⟨ ∙assoc ((𝓻 e) ✶ refl) (𝓻 e) ((𝓻 e) ⁻¹) ⁻¹ ⟩
-                (((𝓻 e) ✶ refl) ∙ (𝓻 e)) ∙ (𝓻 e) ⁻¹ ＝⟨ ap (_∙ (𝓻 e) ⁻¹) (φᵣ (𝓻 e)) ⟩
-                (𝓻 (e ● e) ∙ (𝓻 e)) ∙ (𝓻 e) ⁻¹      ＝⟨ ∙assoc (𝓻 (e ● e)) (𝓻 e) ((𝓻 e) ⁻¹) ⟩
-                𝓻 (e ● e) ∙ ((𝓻 e) ∙ (𝓻 e) ⁻¹)      ＝⟨ ap (𝓻 (e ● e) ∙_) (( right-inverse (𝓻 e) ) ⁻¹) ⟩
-                𝓻 (e ● e)      ∎
-
-      lemma-2 : refl ✶ (𝓵 e) ＝ 𝓵 (e ● e)
-      lemma-2 = refl ✶ (𝓵 e)                        ＝⟨ ap ((refl ✶ (𝓵 e)) ∙_) (right-inverse (𝓵 e)) ⟩
+      lemma-1 : refl ✶ (𝓵 e) ＝ 𝓵 (e ● e)
+      lemma-1 = refl ✶ (𝓵 e)                        ＝⟨ ap ((refl ✶ (𝓵 e)) ∙_) (right-inverse (𝓵 e)) ⟩
                 (refl ✶ (𝓵 e)) ∙ ((𝓵 e) ∙ (𝓵 e) ⁻¹) ＝⟨ ∙assoc (refl ✶ (𝓵 e)) (𝓵 e) ((𝓵 e) ⁻¹) ⁻¹ ⟩
                 ((refl ✶ (𝓵 e)) ∙ (𝓵 e)) ∙ (𝓵 e) ⁻¹ ＝⟨ ap (_∙ (𝓵 e) ⁻¹) (φₗ (𝓵 e)) ⟩
                 (𝓵 (e ● e) ∙ (𝓵 e)) ∙ (𝓵 e) ⁻¹      ＝⟨ ∙assoc (𝓵 (e ● e)) (𝓵 e) (𝓵 e ⁻¹) ⟩
                 𝓵 (e ● e) ∙ ((𝓵 e) ∙ (𝓵 e) ⁻¹)      ＝⟨ ap (𝓵 (e ● e) ∙_) (right-inverse (𝓵 e) ⁻¹) ⟩
                 𝓵 (e ● e)                           ∎
 
-      lemma-3 : (𝓻 e) ✶ (𝓻𝓮𝒻𝓵 e) ＝ (𝓵 e) ✶ (𝓻𝓮𝒻𝓵 e)
-      lemma-3 = (𝓻 e) ✶ (𝓻𝓮𝒻𝓵 e)           ＝⟨ φᵢ ⁻¹ ⟩
-                (α e e e) ∙ (refl ✶ (𝓵 e)) ＝⟨ ap ((α e e e) ∙_) lemma-2 ⟩
+      lemma-2 : (𝓻 e) ✶ (𝓻𝓮𝒻𝓵 e) ＝ (𝓵 e) ✶ (𝓻𝓮𝒻𝓵 e)
+      lemma-2 = (𝓻 e) ✶ (𝓻𝓮𝒻𝓵 e)           ＝⟨ φᵢ ⁻¹ ⟩
+                (α e e e) ∙ (refl ✶ (𝓵 e)) ＝⟨ ap ((α e e e) ∙_) lemma-1 ⟩
                 (α e e e) ∙ (𝓵 (e ● e))    ＝⟨ have-⊗-assoc-neutral-l ⟩
                 (𝓵 e) ✶ (𝓻𝓮𝒻𝓵 e) ∎
 
-      lemma-4 : 𝓻 (e ● e) ∙ (𝓻 e) ＝ 𝓻 (e ● e) ∙ (𝓵 e)
-      lemma-4 = 𝓻 (e ● e) ∙ (𝓻 e)      ＝⟨ φᵣ (𝓻 e) ⁻¹ ⟩
-                ((𝓻 e) ✶ refl) ∙ (𝓻 e) ＝⟨ ap (_∙ (𝓻 e)) lemma-3 ⟩
+      lemma-3 : 𝓻 (e ● e) ∙ (𝓻 e) ＝ 𝓻 (e ● e) ∙ (𝓵 e)
+      lemma-3 = 𝓻 (e ● e) ∙ (𝓻 e)      ＝⟨ φᵣ (𝓻 e) ⁻¹ ⟩
+                ((𝓻 e) ✶ refl) ∙ (𝓻 e) ＝⟨ ap (_∙ (𝓻 e)) lemma-2 ⟩
                 ((𝓵 e) ✶ refl) ∙ (𝓻 e) ＝⟨ φᵣ (𝓵 e) ⟩
                 𝓻 (e ● e) ∙ (𝓵 e)       ∎
 
