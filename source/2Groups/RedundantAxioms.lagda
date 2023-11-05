@@ -12,7 +12,6 @@ open import MLTT.Spartan
 open import UF.Base
 open import UF.Groupoids
 open import 2Groups.Type
-open import Groups.Type using (⟨_⟩)
 
 \end{code}
 
@@ -34,9 +33,8 @@ interchange and preservation of refl be induced from
 
 \begin{code}
 
-module 2Groups.RedundantAxioms where
-
-module _ (X : 𝓤 ̇)
+module 2Groups.RedundantAxioms
+         (X : 𝓤 ̇)
          (_●_ : ⊗-structure X)
          (_✶_ : ⊗-structure-Id X _●_)
          (𝓘 : ⊗-structure-Id-interchange X _●_ _✶_)
