@@ -45,14 +45,6 @@ module 2Groups.Type where
 
 \end{code}
 
-Underlying type of the structure
-
-\begin{code}
-
-open import Groups.Type using (⟨_⟩)
-
-\end{code}
-
 I. The main structure
 =====================
 
@@ -150,8 +142,177 @@ module _ (X : 𝓤 ̇)
 
 \end{code}
 
+II. Axioms
+==========
 
-II. Preserving refl is a consequence of interchange
+1. Pentagon:
+
+((xy)z)t → (x(yz))t → x((yz)t)
+    |                    |
+    ↓                    ↓
+(xy)(zt) -----------→ x(y(zt)) 
+
+
+2. Compatibility with identity types, that is, naturality of the associativity:
+
+(xy)x -----→ x(yz)
+  |           |
+  ↓           ↓
+(x'y')z' --→ x'(y'z')
+
+
+\begin{code}
+
+module _ (X : 𝓤 ̇) (_●_ : ⊗-structure X) (_✶_ : ⊗-structure-Id X _●_) where
+
+  ⊗-assoc-pentagon : associative _●_ → 𝓤 ̇
+  ⊗-assoc-pentagon α = {x y z t : X} →
+                       ( ((x ● y) ● z) ● t ＝⟨ (α x y z) ✶ (𝓻𝓮𝒻𝓵 t) ⟩
+                         (x ● (y ● z)) ● t ＝⟨ α x (y ● z) t ⟩ 
+                         x ● ((y ● z) ● t) ＝⟨ (𝓻𝓮𝒻𝓵 x) ✶ (α y z t) ⟩
+                         x ● (y ● (z ● t)) ∎ )
+                        ＝
+                       ( ((x ● y) ● z) ● t ＝⟨ α (x ● y) z t ⟩
+                         (x ● y) ● (z ● t) ＝⟨ α x y (z ● t) ⟩
+                         x ● (y ● (z ● t)) ∎ )
+  -- ⊗-assoc-pentagon α = {x y z t : X} →
+  --                      ((α x y z) ✶ (𝓻𝓮𝒻𝓵 t)) ∙ ((α x (y ● z) t) ∙ ((𝓻𝓮𝒻𝓵 x) ✶ (α y z t)))
+  --                      ＝ (α (x ● y) z t) ∙ (α x y (z ● t))
+
+  ⊗-assoc-compatible-with-＝ : associative _●_ → 𝓤 ̇
+  ⊗-assoc-compatible-with-＝ α =
+    ∀ {x y z x' y' z'}
+    → (p : x ＝ x')
+    → (q : y ＝ y')
+    → (r : z ＝ z')
+    → ( (x ● y) ● z   ＝⟨ α x y z ⟩
+        x ● (y ● z)   ＝⟨ p ✶ (q ✶ r) ⟩
+        x' ● (y' ● z') ∎ )
+       ＝
+      ( (x ● y) ● z    ＝⟨ (p ✶ q) ✶ r ⟩
+        (x' ● y') ● z' ＝⟨ α x' y' z' ⟩
+        x' ● (y' ● z') ∎ )
+
+\end{code}
+
+If there is a neutral element e, we require the following axioms.
+
+3. Compatibility with associativity:
+
+   (ex)y ---> e(xy)
+     |          |
+     |          |
+     ↓          ↓ 
+     xy ======= xy
+     
+
+   (xe)y ---> x(ey)
+     |          |
+     |          |
+     ↓          ↓ 
+     xy ======= xy
+
+
+   (xy)e ---> x(ye)
+     |          |
+     |          |
+     ↓          ↓ 
+     xy ======= xy
+
+4. Compatibility with the identity types, which translates the
+naturality requirement.
+
+    ex ---> ex'
+    |       |
+    ↓       ↓
+    x ----> x'
+
+    xe ---> x'e
+    |       |
+    ↓       ↓
+    x ----> x'
+
+
+\begin{code}
+
+module _ (X : 𝓤 ̇) (_●_ : ⊗-structure X) (_✶_ : ⊗-structure-Id X _●_) where
+
+  ⊗-assoc-neutral-l : associative _●_
+                    → (e : X) → left-neutral e _●_ → right-neutral e _●_
+                    → 𝓤 ̇
+  ⊗-assoc-neutral-l α e l r = ∀ { x y } →
+             ((e ● x) ● y ＝⟨ α e x y ⟩
+              e ● (x ● y) ＝⟨ l (x ● y) ⟩
+              x ● y       ∎)
+              ＝
+             ((e ● x) ● y ＝⟨ (l x) ✶ (𝓻𝓮𝒻𝓵 y) ⟩
+              x ● y       ∎)
+
+  ⊗-assoc-neutral : associative _●_
+                  → (e : X) → left-neutral e _●_ → right-neutral e _●_
+                  → 𝓤 ̇
+  ⊗-assoc-neutral α e l r = ∀ {x y} →
+              ((x ● e) ● y ＝⟨ α x e y ⟩
+               x ● (e ● y) ＝⟨ (𝓻𝓮𝒻𝓵 x) ✶ (l y) ⟩
+               x ● y       ∎)
+               ＝
+              ((x ● e) ● y ＝⟨ (r x) ✶ (𝓻𝓮𝒻𝓵 y) ⟩
+               x ● y       ∎)
+
+  ⊗-assoc-neutral-r : associative _●_
+                    → (e : X) → left-neutral e _●_ → right-neutral e _●_
+                    → 𝓤 ̇
+  ⊗-assoc-neutral-r α e l r = ∀ {x y} →
+                    ((x ● y) ● e ＝⟨ α x y e ⟩
+                      x ● (y ● e) ＝⟨ (𝓻𝓮𝒻𝓵 x) ✶ (r y) ⟩
+                      x ● y       ∎)
+                      ＝
+                    ((x ● y) ● e ＝⟨ r (x ● y) ⟩
+                      x ● y       ∎)
+
+  left-neutral-compatible-with-＝ : (e : X)
+                                  → left-neutral e _●_
+                                  → right-neutral e _●_
+                                  → 𝓤 ̇
+  left-neutral-compatible-with-＝ e l r = ∀ {x x'} → (p : x ＝ x')
+                                          → (e ● x  ＝⟨ (𝓻𝓮𝒻𝓵 e) ✶ p ⟩
+                                             e ● x' ＝⟨ l x' ⟩
+                                             x'     ∎ ) ＝ (l x) ∙ p
+
+  right-neutral-compatible-with-＝ : (e : X)
+                                   → left-neutral e _●_
+                                   → right-neutral e _●_
+                                   → 𝓤 ̇
+  right-neutral-compatible-with-＝ e l r = ∀ {x x'} → (p : x ＝ x')
+                                           → ( x ● e   ＝⟨ p ✶ (𝓻𝓮𝒻𝓵 e) ⟩ 
+                                               x' ● e  ＝⟨ r x' ⟩
+                                               x'      ∎ ) ＝ (r x) ∙ p
+
+
+  left-right-neutral-compatibility : (e : X)
+                                   → (l : left-neutral e _●_)
+                                   → (r : right-neutral e _●_)
+                                   → 𝓤 ̇
+  left-right-neutral-compatibility e l r = l e ＝ r e
+  
+\end{code}
+
+
+III. Redundant Axioms
+===================
+
+It is known that the axioms are not all independent. In particular,
+`⊗-assoc-neutral-l`, `⊗-assoc-neutral-r`,
+`left-right-neutral-compatibility` follow from the rest. The classical
+argument, given below, is in:
+
+1. Joyal, Street: Braided Tensor Categories.
+2. Mac Lane: Categories for the Working Mathematician.
+
+The proofs are in the module 2Groups.RedundantAxioms
+
+
+IV. Preserving refl is a consequence of interchange
 ===================================================
 
 We deduce ⊗-preserves-id from the interchange law.
@@ -179,8 +340,8 @@ module _ (X : 𝓤 ̇)
 \end{code}
 
 
-III. Lifting one part of the structure
-======================================
+V. Lifting the structure on the carrier to identity types
+=========================================================
 
 It the produc structure on identity types can be obtained from a given
 ⊗-structure X → X → X using ap. In fact, this can be done in several
@@ -320,170 +481,41 @@ with path composition.
          
 \end{code}
 
-IV. Axioms
-==========
-
-1. Pentagon:
-
-((xy)z)t → (x(yz))t → x((yz)t)
-    |                    |
-    ↓                    ↓
-(xy)(zt) -----------→ x(y(zt)) 
-
-
-2. Compatibility with identity types, that is, naturality of the associativity:
-
-(xy)x -----→ x(yz)
-  |           |
-  ↓           ↓
-(x'y')z' --→ x'(y'z')
-
+Prove that a lifted structure satisfies parts of the axioms
 
 \begin{code}
 
-module _ (X : 𝓤 ̇) (_●_ : ⊗-structure X) (_✶_ : ⊗-structure-Id X _●_) where
+module _ (X : 𝓤 ̇) (_●_ : ⊗-structure X)  where
 
-  ⊗-assoc-pentagon : associative _●_ → 𝓤 ̇
-  ⊗-assoc-pentagon α = ∀ {x y z t} →
-                       ( ((x ● y) ● z) ● t ＝⟨ (α x y z) ✶ refl ⟩
-                         (x ● (y ● z)) ● t ＝⟨ α x (y ● z) t ⟩ 
-                         x ● ((y ● z) ● t) ＝⟨ refl ✶ (α y z t) ⟩
-                         x ● (y ● (z ● t)) ∎ )
-                        ＝
-                       ( ((x ● y) ● z) ● t ＝⟨ α _ _ _ ⟩
-                         (x ● y) ● (z ● t) ＝⟨ α _ _ _ ⟩
-                         x ● (y ● (z ● t)) ∎ )
+  private
+   _✶_ = ⊗-structure-to-Id₂ X _●_
 
-  ⊗-assoc-compatible-with-＝ : associative _●_ → 𝓤 ̇
-  ⊗-assoc-compatible-with-＝ α =
-    ∀ {x y z x' y' z'}
-    → (p : x ＝ x')
-    → (q : y ＝ y')
-    → (r : z ＝ z')
-    → ( (x ● y) ● z   ＝⟨ α x y z ⟩
-        x ● (y ● z)   ＝⟨ p ✶ (q ✶ r) ⟩
-        x' ● (y' ● z') ∎ )
-       ＝
-      ( (x ● y) ● z    ＝⟨ (p ✶ q) ✶ r ⟩
-        (x' ● y') ● z' ＝⟨ α x' y' z' ⟩
-        x' ● (y' ● z') ∎ )
+  ⊗-structure-to-Id-assoc-compatible-with-＝ : (α : associative _●_)
+                                             → ⊗-assoc-compatible-with-＝ X _●_ _✶_ α
+  ⊗-structure-to-Id-assoc-compatible-with-＝ α {x} {y} {z} {.x} {.y} {.z} refl refl refl = 
+    α x y z ∙ refl ✶ (refl ✶ refl)
+      ＝⟨ ap ((α x y z) ∙_) refl ⟩
+    α x y z
+      ＝⟨ refl-left-neutral  ⁻¹ ⟩
+    refl ∙ (α x y z)
+      ＝⟨ refl ⟩
+    ((refl ✶ refl) ✶ refl) ∙ α x y z ∎
+
+  ⊗-structure-to-Id-left-neutral-compatible-with-＝ : (e : X)
+                                                    → (l : left-neutral e _●_)
+                                                    → (r : right-neutral e _●_)
+                                                    → left-neutral-compatible-with-＝ X _●_ _✶_ e l r
+  ⊗-structure-to-Id-left-neutral-compatible-with-＝ e l r {x} refl = refl ✶ refl ∙ (l x ) ＝⟨ refl-left-neutral ⟩
+                                                                     l x                  ∎
+
+  ⊗-structure-to-Id-right-neutral-compatible-with-＝ : (e : X)
+                                                     → (l : left-neutral e _●_)
+                                                     → (r : right-neutral e _●_)
+                                                     → right-neutral-compatible-with-＝ X _●_ _✶_ e l r
+  ⊗-structure-to-Id-right-neutral-compatible-with-＝ e l r {x} refl = refl ✶ refl ∙ (r x) ＝⟨ refl-left-neutral ⟩
+                                                                      r x                 ∎
 
 \end{code}
-
-If there is a neutral element e, we require the following axioms.
-
-3. Compatibility with associativity:
-
-   (ex)y ---> e(xy)
-     |          |
-     |          |
-     ↓          ↓ 
-     xy ======= xy
-     
-
-   (xe)y ---> x(ey)
-     |          |
-     |          |
-     ↓          ↓ 
-     xy ======= xy
-
-
-   (xy)e ---> x(ye)
-     |          |
-     |          |
-     ↓          ↓ 
-     xy ======= xy
-
-4. Compatibility with the identity types, which translates the
-naturality requirement.
-
-    ex ---> ex'
-    |       |
-    ↓       ↓
-    x ----> x'
-
-    xe ---> x'e
-    |       |
-    ↓       ↓
-    x ----> x'
-
-
-\begin{code}
-
-module _ (X : 𝓤 ̇) (_●_ : ⊗-structure X) (_✶_ : ⊗-structure-Id X _●_) where
-
-  ⊗-assoc-neutral-l : associative _●_
-                    → (e : X) → left-neutral e _●_ → right-neutral e _●_
-                    → 𝓤 ̇
-  ⊗-assoc-neutral-l α e l r = ∀ { x y } →
-             ((e ● x) ● y ＝⟨ α e x y ⟩
-              e ● (x ● y) ＝⟨ l (x ● y) ⟩
-              x ● y       ∎)
-              ＝
-             ((e ● x) ● y ＝⟨ (l x) ✶ refl ⟩
-              x ● y       ∎)
-
-  ⊗-assoc-neutral : associative _●_
-                  → (e : X) → left-neutral e _●_ → right-neutral e _●_
-                  → 𝓤 ̇
-  ⊗-assoc-neutral α e l r = ∀ {x y} →
-              ((x ● e) ● y ＝⟨ α x e y ⟩
-               x ● (e ● y) ＝⟨ refl ✶ (l y) ⟩
-               x ● y       ∎)
-               ＝
-              ((x ● e) ● y ＝⟨ (r x) ✶ refl ⟩
-               x ● y       ∎)
-
-  ⊗-assoc-neutral-r : associative _●_
-                    → (e : X) → left-neutral e _●_ → right-neutral e _●_
-                    → 𝓤 ̇
-  ⊗-assoc-neutral-r α e l r = ∀ {x y} →
-                    ((x ● y) ● e ＝⟨ α x y e ⟩
-                      x ● (y ● e) ＝⟨ refl ✶ (r y) ⟩
-                      x ● y       ∎)
-                      ＝
-                    ((x ● y) ● e ＝⟨ r (x ● y) ⟩
-                      x ● y       ∎)
-
-  left-neutral-compatible-with-＝ : (e : X)
-                                  → left-neutral e _●_
-                                  → right-neutral e _●_
-                                  → 𝓤 ̇
-  left-neutral-compatible-with-＝ e l r = ∀ {x x'} → (p : x ＝ x')
-                                          → (e ● x  ＝⟨ refl ✶ p ⟩
-                                             e ● x' ＝⟨ l x' ⟩
-                                             x'     ∎ ) ＝ (l x) ∙ p
-
-  right-neutral-compatible-with-＝ : (e : X)
-                                   → left-neutral e _●_
-                                   → right-neutral e _●_
-                                   → 𝓤 ̇
-  right-neutral-compatible-with-＝ e l r = ∀ {x x'} → (p : x ＝ x')
-                                           → ( x ● e   ＝⟨ p ✶ refl ⟩ 
-                                               x' ● e  ＝⟨ r x' ⟩
-                                               x'      ∎ ) ＝ (r x) ∙ p
-
-
-  left-right-neutral-compatibility : (e : X)
-                                   → (l : left-neutral e _●_)
-                                   → (r : right-neutral e _●_)
-                                   → 𝓤 ̇
-  left-right-neutral-compatibility e l r = l e ＝ r e
-  
-\end{code}
-
-V. Redundant Axioms
-===================
-
-It is known that the axioms are not all independent. In particular,
-`⊗-assoc-neutral-l`, `⊗-assoc-neutral-r`,
-`left-right-neutral-compatibility` follow from the rest. The classical
-argument, given below, is in:
-
-1. Joyal, Street: Braided Tensor Categories.
-2. Mac Lane: Categories for the Working Mathematician.
-
-The proofs are in the module 2Groups.RedundantAxioms
 
 VI. Duality
 ===========
