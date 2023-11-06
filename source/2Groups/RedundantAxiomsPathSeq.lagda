@@ -12,8 +12,6 @@ open import MLTT.Spartan
 open import UF.Base
 open import UF.Groupoids
 open import PathSequences.Type
-open import PathSequences.Concat
-open import PathSequences.Inversion
 open import PathSequences.Reasoning
 open import PathSequences.Rotations
 open import 2Groups.Type
