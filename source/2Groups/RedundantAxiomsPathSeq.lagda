@@ -9,11 +9,13 @@ October 2023
 {-# OPTIONS --without-K --safe  --exact-split #-}
 
 open import MLTT.Spartan
-open import UF.Base
+open import UF.Base using (right-inverse;
+                           left-inverse)
 open import UF.Groupoids
 open import PathSequences.Type
 open import PathSequences.Reasoning
 open import PathSequences.Rotations
+open import PathSequences.Cancel
 open import 2Groups.Type
 
 \end{code}
@@ -342,12 +344,7 @@ of the others.
       i = ＝ₛ-in (φₗ (𝓵 e))
 
       ii : ((𝓻𝓮𝒻𝓵 e) ✶ 𝓵 e) ◃∎ ＝ₛ 𝓵 (e ● e) ◃∎
-      ii = ((𝓻𝓮𝒻𝓵 e) ✶ 𝓵 e) ◃∎
-             ＝ₛ⟨ post-rotate-in i ⟩
-            𝓵 (e ● e) ◃∙ 𝓵 e ◃∙ (𝓵 e ⁻¹) ◃∎
-             ＝ₛ⟨ 1 & 2 & ＝ₛ-in (right-inverse (𝓵 e) ⁻¹) ⟩ 
-           𝓵 (e ● e) ◃∎
-             ∎ₛ
+      ii = cancel-right i
 
       iii : ((𝓻 e) ✶ (𝓻𝓮𝒻𝓵 e)) ◃∎ ＝ₛ ((𝓵 e) ✶ (𝓻𝓮𝒻𝓵 e)) ◃∎
       iii = ((𝓻 e) ✶ (𝓻𝓮𝒻𝓵 e)) ◃∎
@@ -370,13 +367,7 @@ of the others.
                  ∎ₛ
 
       v : 𝓻 e ◃∎ ＝ₛ 𝓵 e ◃∎
-      v = 𝓻 e ◃∎
-            ＝ₛ⟨ pre-rotate-in iv ⟩
-          (𝓻 (e ● e) ⁻¹) ◃∙ 𝓻 (e ● e) ◃∙ (𝓵 e) ◃∎
-            ＝ₛ⟨ 0 & 2 & I ⟩
-          𝓵 e ◃∎  ∎ₛ
-            where
-              I : (𝓻 (e ● e) ⁻¹) ◃∙ 𝓻 (e ● e) ◃∎ ＝ₛ []
-              I = ＝ₛ-in (left-inverse (𝓻 (e ● e)))
+      v = cancel-left iv
 
 \end{code}
+
