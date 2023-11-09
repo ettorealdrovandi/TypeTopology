@@ -54,8 +54,9 @@ cancel-right {p = p} {q} {r} e = p ＝ₛ⟨ post-rotate-in e ⟩
 cancel-seq-right : {x y z : X} {p q : x ≡ y} {r : y ≡ z}
                  → p ∙≡ r ＝ₛ q ∙≡ r
                  → p ＝ₛ q
-cancel-seq-right {p = p} {q} {r} e = p ＝ₛ⟨ post-rotate-seq-in {p = p} e  ⟩
-                                     (q ∙≡ r) ∙≡ (seq⁻¹ r)
-                                       ＝ₛ⟨ post-rotate-seq-in {q = r} (＝ₛ-in refl) ⁻¹ₛ ⟩
-                                     q ∎ₛ
+cancel-seq-right {p = p} {q} {r} e =
+                 p ＝ₛ⟨ post-rotate-seq-in {p = p} e  ⟩
+                 (q ∙≡ r) ∙≡ (seq⁻¹ r)
+                    ＝ₛ⟨ post-rotate-seq-in {q = r} (＝ₛ-in refl) ⁻¹ₛ ⟩
+                 q ∎ₛ
 \end{code}
