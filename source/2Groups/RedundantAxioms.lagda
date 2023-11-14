@@ -9,9 +9,14 @@ October 2023
 {-# OPTIONS --without-K --safe  --exact-split #-}
 
 open import MLTT.Spartan
-open import UF.Base
+open import UF.Base using (right-inverse;
+                           left-inverse)
 open import UF.Groupoids
-open import 2Groups.Type
+open import PathSequences.Type
+open import PathSequences.Reasoning
+open import PathSequences.Rotations
+open import PathSequences.Cancel
+open import 2Groups.Base
 
 \end{code}
 
@@ -37,8 +42,8 @@ module 2Groups.RedundantAxioms
          (X : 𝓤 ̇)
          (_●_ : ⊗-structure X)
          (_✶_ : ⊗-structure-Id X _●_)
-         (𝓘 : ⊗-structure-Id-interchange X _●_ _✶_)
-         (𝓲𝓭 : ⊗-preserves-id X _●_ _✶_)
+         (𝓘 : ⊗-structure-interchange X _●_ _✶_)
+         (𝓲𝓭 : ⊗-structure-preserves-id X _●_ _✶_)
          (α : associative _●_)
          (π : ⊗-assoc-pentagon X _●_ _✶_ α)
          (φₐₛ : ⊗-assoc-compatible-with-＝ X _●_ _✶_ α)
@@ -49,10 +54,127 @@ module 2Groups.RedundantAxioms
          (φₗ : left-neutral-compatible-with-＝ X _●_ _✶_ e 𝓵 𝓻)
          (φᵣ : right-neutral-compatible-with-＝ X _●_ _✶_ e 𝓵 𝓻)
            where
- opaque
 \end{code}
 
-This shows how to get ⊗-assoc-neutral-l from ⊗-assoc-neutral plus the naturality axioms.
+
+⊗-assoc-neutral-r is a consequence of ⊗-assoc-neutral and the
+naturality axioms. We prove the commutativity of the following two
+diagrams:
+
+% https://q.uiver.app/?q=WzAsNyxbMCwwLCIoKHh5KWUpZSJdLFsyLDAsIih4KHllKSllIl0sWzQsMCwieCgoeWUpZSkiXSxbNCwyLCJ4KHkoZWUpKSJdLFswLDIsIih4eSkoZWUpIl0sWzEsMSwiKHh5KWUiXSxbMywxLCJ4KHllKSJdLFswLDEsInAiXSxbMSwyLCJxIl0sWzIsMywiciJdLFswLDQsInUiLDJdLFs0LDMsInYiLDJdLFswLDUsInMnJyIsMl0sWzUsNiwicSciLDIseyJsYWJlbF9wb3NpdGlvbiI6NjB9XSxbMSw1LCJ0JyJdLFsyLDYsInQiXSxbMyw2LCJzIiwyXSxbNCw1LCJzJyIsMl1d
+\[\begin{tikzcd}
+	{((xy)e)e} && {(x(ye))e} && {x((ye)e)} \\
+	& {(xy)e} && {x(ye)} \\
+	{(xy)(ee)} &&&& {x(y(ee))}
+	\arrow["p", from=1-1, to=1-3]
+	\arrow["q", from=1-3, to=1-5]
+	\arrow["r", from=1-5, to=3-5]
+	\arrow["u"', from=1-1, to=3-1]
+	\arrow["v"', from=3-1, to=3-5]
+	\arrow["{s''}"', from=1-1, to=2-2]
+	\arrow["{q'}"'{pos=0.6}, from=2-2, to=2-4]
+	\arrow["{t'}", from=1-3, to=2-2]
+	\arrow["t", from=1-5, to=2-4]
+	\arrow["s"', from=3-5, to=2-4]
+	\arrow["{s'}"', from=3-1, to=2-2]
+\end{tikzcd}\]
+
+% https://q.uiver.app/?q=WzAsOCxbMiwyLCIoeHkpZSIsWzI0NCw4Niw2MCwxXV0sWzQsMiwieCh5ZSkiLFsyNDQsODYsNjAsMV1dLFswLDBdLFs2LDBdLFsxLDEsIigoeHkpZSllIl0sWzUsMSwiKHgoeWUpKWUiXSxbMyw1LCIoeHkpZSJdLFszLDMsInh5IixbMjQ0LDg2LDYwLDFdXSxbMCwxLCJcXGFscGhhIiwwLHsiY29sb3VyIjpbMjQ0LDg2LDYwXX0sWzI0NCw4Niw2MCwxXV0sWzQsNSwicCJdLFs0LDYsInMnJyIsMix7ImN1cnZlIjoyfV0sWzUsNiwidCciLDAseyJjdXJ2ZSI6LTJ9XSxbNSwxLCJyX3t4KHllKX0iLDIseyJsYWJlbF9wb3NpdGlvbiI6NzB9XSxbNCwwLCJyX3soeHkpZX0iLDAseyJsYWJlbF9wb3NpdGlvbiI6NzB9XSxbMCw3LCJyX3t4eX0iLDIseyJsYWJlbF9wb3NpdGlvbiI6MzAsImNvbG91ciI6WzI0NCw4Niw2MF19LFsyNDQsODYsNjAsMV1dLFsxLDcsInggcl95IiwwLHsibGFiZWxfcG9zaXRpb24iOjIwLCJjb2xvdXIiOlsyNDQsODYsNjBdfSxbMjQ0LDg2LDYwLDFdXSxbNiw3LCJyX3t4eX0iLDFdXQ==
+\[\begin{tikzcd}
+	{} &&&&&& {} \\
+	& {((xy)e)e} &&&& {(x(ye))e} \\
+	&& \textcolor{rgb,255:red,77;green,65;blue,241}{(xy)e} && \textcolor{rgb,255:red,77;green,65;blue,241}{x(ye)} \\
+	&&& \textcolor{rgb,255:red,77;green,65;blue,241}{xy} \\
+	\\
+	&&& {(xy)e}
+	\arrow["\alpha", color={rgb,255:red,77;green,65;blue,241}, from=3-3, to=3-5]
+	\arrow["p", from=2-2, to=2-6]
+	\arrow["{s''}"', curve={height=12pt}, from=2-2, to=6-4]
+	\arrow["{t'}", curve={height=-12pt}, from=2-6, to=6-4]
+	\arrow["{r_{x(ye)}}"'{pos=0.7}, from=2-6, to=3-5]
+	\arrow["{r_{(xy)e}}"{pos=0.7}, from=2-2, to=3-3]
+	\arrow["{r_{xy}}"'{pos=0.3}, color={rgb,255:red,77;green,65;blue,241}, from=3-3, to=4-4]
+	\arrow["{x r_y}"{pos=0.2}, color={rgb,255:red,77;green,65;blue,241}, from=3-5, to=4-4]
+	\arrow["{r_{xy}}"{description}, from=6-4, to=4-4]
+\end{tikzcd}\]
+
+\begin{code}
+
+  have-⊗-assoc-neutral-r : ⊗-assoc-neutral-r X _●_ _✶_ α e 𝓵 𝓻
+  have-⊗-assoc-neutral-r {x} {y} = ＝ₛ-out iv
+    where
+      p : ((x ● y) ● e) ● e ＝ (x ● (y ● e)) ● e
+      p = (α x y e) ✶ refl
+      q : (x ● (y ● e)) ● e ＝ x ● ((y ● e) ● e)
+      q = α x (y ● e) e
+      q' : (x ● y) ● e ＝ x ● (y ● e)
+      q' = α x y e
+      r : x ● ((y ● e) ● e) ＝ x ● (y ● (e ● e))
+      r = refl ✶ (α y e e)
+      s : x ● (y ● (e ● e)) ＝ x ● (y ● e)
+      s = refl ✶ (refl ✶ 𝓵 e)
+      s' : (x ● y) ● (e ● e) ＝ (x ● y) ● e
+      s' = refl ✶ (𝓵 e)
+      s₁' : (x ● y) ● (e ● e) ＝ (x ● y) ● e
+      s₁' = (refl ✶ refl) ✶ (𝓵 e)
+      s'' : ((x ● y) ● e) ● e ＝ (x ● y) ● e
+      s'' = 𝓻 (x ● y) ✶ refl
+      t : x ● ((y ● e) ● e) ＝ x ● (y ● e)
+      t = refl ✶ ((𝓻 y) ✶ refl)
+      t' : (x ● (y ● e)) ● e ＝ (x ● y) ● e
+      t' = ((refl ✶ 𝓻 y)) ✶ refl
+      u : ((x ● y) ● e) ● e ＝ (x ● y) ● (e ● e)
+      u = α (x ● y) e e
+      v : (x ● y) ● (e ● e) ＝ x ● (y ● (e ● e))
+      v = α x y (e ● e)
+
+      i : p ◃∙ q ◃∙ r ◃∙ s ◃∎ ＝ₛ p ◃∙ t' ◃∙ q' ◃∎
+      i = p ◃∙ q ◃∙ r ◃∙ s ◃∎                            ＝↓⟨ 2 & 2 & 𝓘 refl refl (α y e e) (refl ✶ 𝓵 e) ⟩
+          p ◃∙ q ◃∙ (refl ✶ (α y e e ∙ (refl ✶ 𝓵 e))) ◃∎ ＝↓⟨ 2 & 1 & ap (refl ✶_) φᵢ ⟩
+          p ◃∙ q ◃∙ t ◃∎                                 ＝ₛ⟨ 1 & 2 & ＝ₛ-in (φₐₛ refl (𝓻 y) refl) ⟩ 
+          p ◃∙ t' ◃∙ q' ◃∎                                ∎ₛ
+
+      ii : p ◃∙ q ◃∙ r ◃∙ s ◃∎ ＝ₛ s'' ◃∙ q' ◃∎
+      ii = p ◃∙ q ◃∙ r ◃∙ s ◃∎  ＝ₛ⟨ 0 & 3 & I ⟩
+           u ◃∙ v ◃∙ s ◃∎       ＝ₛ⟨ 1 & 3 & ＝ₛ-in (φₐₛ refl refl (𝓵 e)) ⟩
+           u ◃∙ s₁' ◃∙ q' ◃∎    ＝↓⟨ 1 & 1 & (ap (_✶ (𝓵 e)) 𝓲𝓭) ⟩
+           u ◃∙ s' ◃∙ q' ◃∎     ＝ₛ⟨ 0 & 2 & II ⟩
+           s'' ◃∙ q' ◃∎         ∎ₛ
+             where
+               I : p ◃∙ q ◃∙ r ◃∎ ＝ₛ u ◃∙ v ◃∎
+               I = ＝ₛ-in π
+               II : u ◃∙ s' ◃∎ ＝ₛ s'' ◃∎
+               II = ＝ₛ-in φᵢ
+
+      iii : p ◃∙ t' ◃∎ ＝ₛ s'' ◃∎
+      iii = p ◃∙ t' ◃∎                     ＝ₛ⟨ 2 & 0 & ＝ₛ-in (right-inverse q') ⟩
+            p ◃∙ t' ◃∙ q' ◃∙ (q' ⁻¹) ◃∎    ＝ₛ⟨ 0 & 3 & (i ⁻¹ₛ) ∙ₛ ii ⟩
+            s'' ◃∙ q' ◃∙  (q' ⁻¹) ◃∎       ＝ₛ⟨ 1 & 2 & ＝ₛ-in ((right-inverse q') ⁻¹) ⟩
+            s'' ◃∎     ∎ₛ
+
+      iv : α x y e ◃∙ ((𝓻𝓮𝒻𝓵 x) ✶ (𝓻 y)) ◃∎ ＝ₛ 𝓻 (x ● y) ◃∎
+      iv = α x y e ◃∙ ((𝓻𝓮𝒻𝓵 x) ✶ (𝓻 y)) ◃∎
+             ＝ₛ⟨ 0 & 0 & I ⟩
+           (𝓻 ((x ● y) ● e) ⁻¹) ◃∙ 𝓻 ((x ● y) ● e) ◃∙ α x y e ◃∙ ((𝓻𝓮𝒻𝓵 x) ✶ (𝓻 y)) ◃∎
+             ＝ₛ⟨ 1 & 2 & II ⟩
+           (𝓻 ((x ● y) ● e) ⁻¹) ◃∙ p ◃∙ 𝓻 (x ● (y ● e)) ◃∙ ((𝓻𝓮𝒻𝓵 x) ✶ (𝓻 y)) ◃∎
+             ＝ₛ⟨ 2 & 2 & ＝ₛ-in (φᵣ (refl ✶ (𝓻 y)) ⁻¹) ⟩
+           (𝓻 ((x ● y) ● e) ⁻¹) ◃∙ p ◃∙ t' ◃∙ 𝓻 (x ● y) ◃∎
+             ＝ₛ⟨ 1 & 2 & iii ⟩
+           (𝓻 ((x ● y) ● e) ⁻¹) ◃∙ s'' ◃∙ 𝓻 (x ● y) ◃∎
+             ＝ₛ⟨ 1 & 2 & ＝ₛ-in (φᵣ (𝓻 (x ● y))) ⟩
+           (𝓻 ((x ● y) ● e) ⁻¹) ◃∙ 𝓻 ((x ● y) ● e) ◃∙ 𝓻 (x ● y) ◃∎
+             ＝ₛ⟨ 0 & 2 & I ⁻¹ₛ ⟩ 
+           𝓻 (x ● y) ◃∎ ∎ₛ
+             where
+               I : [] ＝ₛ (𝓻 ((x ● y) ● e) ⁻¹) ◃∙ 𝓻 ((x ● y) ● e) ◃∎
+               I = ＝ₛ-in (left-inverse (𝓻 ((x ● y) ● e)) ⁻¹)
+               II : 𝓻 ((x ● y) ● e) ◃∙ α x y e ◃∙ [] ＝ₛ p ◃∙ 𝓻 (x ● (y ● e)) ◃∙ []
+               II = ＝ₛ-in (φᵣ (α x y e) ⁻¹)
+\end{code}
+
+This shows how to get ⊗-assoc-neutral-l from ⊗-assoc-neutral plus the
+naturality axioms.
 
 The two diagrams analyzed in the code below are:
 
@@ -100,13 +222,16 @@ and:
 \begin{code}
 
   have-⊗-assoc-neutral-l : ⊗-assoc-neutral-l X _●_ _✶_ α e 𝓵 𝓻
-  have-⊗-assoc-neutral-l {x} {y} = l-4
+  have-⊗-assoc-neutral-l {x} {y} = ＝ₛ-out vi
     where
       p : ((e ● e) ● x) ● y ＝ (e ● (e ● x)) ● y
       p = (α e e x) ✶ refl
 
       q : (e ● (e ● x)) ● y ＝ e ● ((e ● x) ● y)
       q = α e (e ● x) y
+
+      q' : (e ● x) ● y ＝ e ● (x ● y)
+      q' = α e x y
 
       r : e ● ((e ● x) ● y) ＝ e ● (e ● (x ● y))
       r = refl ✶ (α e x y)
@@ -135,201 +260,75 @@ and:
       t' : (e ● (e ● x)) ● y ＝ (e ● x) ● y
       t' = (refl ✶ (𝓵 x)) ✶ refl
 
-      γ : ((e ● e) ● x) ● y ＝ e ● (x ● y)
-      γ = ((e ● e) ● x) ● y ＝⟨ p ⟩
-          (e ● (e ● x)) ● y ＝⟨ q ⟩
-          e ● ((e ● x) ● y) ＝⟨ r ⟩
-          e ● (e ● (x ● y)) ＝⟨ s ⟩
-          e ● (x ● y)       ∎
+      i : p ◃∙ q ◃∙ t ◃∎ ＝ₛ w' ◃∙ q' ◃∎
+      i = p ◃∙ q ◃∙ t ◃∎      ＝ₛ⟨ 1 & 2 & ＝ₛ-in (φₐₛ refl (𝓵 x) refl) ⟩
+          p ◃∙ t' ◃∙ q' ◃∎    ＝↓⟨ 0 & 2 & 𝓘 (α e e x) (refl ✶ 𝓵 x) refl refl ⟩
+          ((α e e x ∙ ((𝓻𝓮𝒻𝓵 e) ✶ 𝓵 x)) ✶ (𝓻𝓮𝒻𝓵 y)) ◃∙ q' ◃∎ ＝ₛ⟨ 0 & 1 & I ⟩
+          w' ◃∙ q' ◃∎         ∎ₛ
+            where
+              I : ((α e e x ∙ ((𝓻𝓮𝒻𝓵 e) ✶ 𝓵 x)) ✶ (𝓻𝓮𝒻𝓵 y)) ◃∙ [] ＝ₛ w' ◃∙ []
+              I = ＝ₛ-in (ap (_✶ 𝓻𝓮𝒻𝓵 y) φᵢ)
 
-      δ : ((e ● e) ● x) ● y ＝ e ● (x ● y)
-      δ = ((e ● e) ● x) ● y ＝⟨ p ⟩
-          (e ● (e ● x)) ● y ＝⟨ q ⟩
-          e ● ((e ● x) ● y) ＝⟨ t ⟩
-          e ● (x ● y)       ∎
+      ii : p ◃∙ q ◃∙ r ◃∙ s ◃∎ ＝ₛ w' ◃∙ q' ◃∎
+      ii = p ◃∙ q ◃∙ r ◃∙ s ◃∎ ＝ₛ⟨ 0 & 3 & I ⟩
+           u ◃∙ v ◃∙ s ◃∎      ＝ₛ⟨ 1 & 2 & ＝ₛ-in φᵢ ⟩
+           u ◃∙ w ◃∎           ＝ₛ⟨ II ⟩
+           w' ◃∙ q' ◃∎         ∎ₛ 
+             where
+               I : p ◃∙ q ◃∙ r ◃∙ [] ＝ₛ u ◃∙ v ◃∙ []
+               I = ＝ₛ-in π
+               II : u ◃∙ w ◃∎ ＝ₛ w' ◃∙ q' ◃∎
+               II = (α (e ● e) x y) ◃∙ ((𝓻 e) ✶ refl) ◃∎
+                       ＝ₛ⟨ 1 & 1 & ＝ₛ-in (ap ((𝓻 e) ✶_ ) 𝓲𝓭 ⁻¹) ⟩
+                    (α (e ● e) x y) ◃∙ ((𝓻 e) ✶ (refl ✶ refl)) ◃∎
+                       ＝ₛ⟨ ＝ₛ-in (φₐₛ (𝓻 e) refl refl) ⟩
+                    (((𝓻 e) ✶ refl) ✶ refl) ◃∙ α e x y ◃∎
+                        ∎ₛ
 
-      l-1 : γ ＝ δ
-      l-1 = γ                   ＝⟨ refl ⟩
-            p ∙ (q ∙ (r ∙ s))   ＝⟨ ap (p ∙_) (∙assoc q r s ⁻¹) ⟩
-            p ∙ ((q ∙ r) ∙ s)   ＝⟨ (∙assoc p (q ∙ r) s) ⁻¹ ⟩
-            (p ∙ (q ∙ r)) ∙ s   ＝⟨ ap (_∙ s) π ⟩
-            (u ∙ v) ∙ s         ＝⟨ ∙assoc u v s ⟩
-            u ∙ (v ∙ s)         ＝⟨ ap (λ v₁ → u ∙ v₁) φᵢ ⟩
-            u ∙ w               ＝⟨ ap (u ∙_) (ap (𝓻 e ✶_) (𝓲𝓭 ⁻¹)) ⟩ 
-            u ∙ w''             ＝⟨ φₐₛ (𝓻 e) refl refl ⟩
-            w' ∙ α e x y        ＝⟨ ap (_∙ α e x y) (i ⁻¹) ⟩
-            (p ∙ t') ∙ α e x y  ＝⟨ ∙assoc p t' (α e x y) ⟩
-            p ∙ (t' ∙ α e x y)  ＝⟨ ap (p ∙_) ii ⁻¹ ⟩
-            p ∙ (q ∙ t)         ∎ 
-              where
-                i : p ∙ t' ＝ w'
-                i = p ∙ t' ＝⟨ 𝓘 (α e e x) (refl ✶ (𝓵 x)) refl refl ⟩
-                    (α e e x ∙ (refl ✶ (𝓵 x))) ✶ refl
-                           ＝⟨ ap (λ 𝓼 → 𝓼 ✶ refl) φᵢ ⟩
-                    w'     ∎
+      iii : p ◃∙ q ◃∙ r ◃∙ s ◃∎ ＝ₛ p ◃∙ q ◃∙ t ◃∎
+      iii = p ◃∙ q ◃∙ r ◃∙ s ◃∎ ＝ₛ⟨ ii ⟩
+            w' ◃∙ q' ◃∎         ＝ₛ⟨ i ⁻¹ₛ ⟩
+            p ◃∙ q ◃∙ t ◃∎      ∎ₛ
 
-                ii : q ∙ t ＝ t' ∙ α e x y
-                ii = φₐₛ refl (𝓵 x) refl
 
-      l-2 : r ∙ s ＝ t
-      l-2 = cancel-left (cancel-left l-1)
+      iv : r ◃∙ s ◃∎ ＝ₛ t ◃∎
+      iv = r ◃∙ s ◃∎ ＝ₛ⟨ pre-rotate-seq-in {p = p ◃∙ q ◃∎} iii ⟩
+           (q ⁻¹) ◃∙ (p ⁻¹) ◃∙ p ◃∙ q ◃∙ t ◃∎
+                     ＝ₛ⟨ 1 & 2 & I ⟩ 
+           (q ⁻¹) ◃∙ q ◃∙ t ◃∎
+                     ＝ₛ⟨ 0 & 2 & II ⟩
+           t ◃∎      ∎ₛ
+             where
+               I : (p ⁻¹) ◃∙ p ◃∙ [] ＝ₛ []
+               I = ＝ₛ-in (left-inverse p)
+               II : (q ⁻¹) ◃∙ q ◃∙ [] ＝ₛ []
+               II = ＝ₛ-in (left-inverse q)
 
-      γ₁ : e ● ((e ● x) ● y) ＝ x ● y
-      γ₁ = e ● ((e ● x) ● y) ＝⟨ 𝓵 ((e ● x) ● y) ⟩
-           (e ● x) ● y       ＝⟨ α e x y ⟩
-           e ● (x ● y)       ＝⟨ 𝓵 (x ● y) ⟩
-           x ● y             ∎
+      𝕧 : 𝓵 ((e ● x) ● y) ◃∙ α e x y ◃∙ 𝓵 (x ● y) ◃∎ ＝ₛ 𝓵 ((e ● x) ● y) ◃∙ ((𝓵 x) ✶ refl) ◃∎
+      𝕧 = 𝓵 ((e ● x) ● y) ◃∙ α e x y ◃∙ 𝓵 (x ● y) ◃∎
+            ＝ₛ⟨ 0 & 2 & I ⟩
+          r ◃∙ 𝓵 (e ● (x ● y)) ◃∙ 𝓵 (x ● y) ◃∎
+            ＝ₛ⟨ 1 & 2 & ＝ₛ-in (φₗ (𝓵 (x ● y)) ⁻¹) ⟩
+          r ◃∙ s ◃∙ 𝓵 (x ● y) ◃∎
+            ＝ₛ⟨ 0 & 2 & iv ⟩
+          t ◃∙ 𝓵 (x ● y) ◃∎
+            ＝ₛ⟨ 0 & 2 & ＝ₛ-in (φₗ (𝓵 x ✶ refl)) ⟩
+          𝓵 ((e ● x) ● y) ◃∙ ((𝓵 x) ✶ refl) ◃∎
+            ∎ₛ
+            where
+              I : 𝓵 ((e ● x) ● y) ◃∙ α e x y ◃∎ ＝ₛ r ◃∙ 𝓵 (e ● (x ● y)) ◃∎
+              I = ＝ₛ-in (φₗ (α e x y) ⁻¹)
 
-      δ₁ : e ● ((e ● x) ● y) ＝ x ● y
-      δ₁ = e ● ((e ● x) ● y) ＝⟨ 𝓵 ((e ● x) ● y) ⟩
-           (e ● x) ● y       ＝⟨ (𝓵 x) ✶ refl ⟩
-           x ● y             ∎
-
-      l-3 : γ₁ ＝ δ₁
-      l-3 = γ₁                                      ＝⟨ ∙assoc (𝓵 ((e ● x) ● y)) (α e x y) (𝓵 (x ● y)) ⁻¹ ⟩
-            𝓵 ((e ● x) ● y) ∙ (α e x y) ∙ 𝓵 (x ● y) ＝⟨ ap (_∙ (𝓵 (x ● y))) (φₗ (α e x y) ⁻¹) ⟩
-            r ∙ 𝓵 (e ● (x ● y)) ∙ 𝓵 (x ● y)         ＝⟨ ∙assoc r _ (𝓵 (x ● y)) ⟩
-            r ∙ (𝓵 (e ● (x ● y)) ∙ 𝓵 (x ● y))       ＝⟨ ap (r ∙_) (φₗ (𝓵 (x ● y)) ⁻¹) ⟩
-            r ∙ (s ∙ 𝓵 (x ● y))                     ＝⟨ ∙assoc r s (𝓵 (x ● y)) ⁻¹ ⟩
-            (r ∙ s) ∙ 𝓵 (x ● y)                     ＝⟨ ap (_∙ (𝓵 (x ● y))) l-2 ⟩
-            t ∙ 𝓵 (x ● y)                           ＝⟨ φₗ ((𝓵 x) ✶ refl) ⟩
-            δ₁ ∎
-
-      l-4 : (α e x y) ∙ 𝓵 (x ● y) ＝ (𝓵 x) ✶ refl
-      l-4 = cancel-left l-3
-
-\end{code}
-
-⊗-assoc-neutral-r is a consequence too of ⊗-assoc-neutral and the
-naturality axioms. We prove the commutativity of the following two
-diagrams:
-
-% https://q.uiver.app/?q=WzAsNyxbMCwwLCIoKHh5KWUpZSJdLFsyLDAsIih4KHllKSllIl0sWzQsMCwieCgoeWUpZSkiXSxbNCwyLCJ4KHkoZWUpKSJdLFswLDIsIih4eSkoZWUpIl0sWzEsMSwiKHh5KWUiXSxbMywxLCJ4KHllKSJdLFswLDEsInAiXSxbMSwyLCJxIl0sWzIsMywiciJdLFswLDQsInUiLDJdLFs0LDMsInYiLDJdLFswLDUsInMnJyIsMl0sWzUsNiwicSciLDIseyJsYWJlbF9wb3NpdGlvbiI6NjB9XSxbMSw1LCJ0JyJdLFsyLDYsInQiXSxbMyw2LCJzIiwyXSxbNCw1LCJzJyIsMl1d
-\[\begin{tikzcd}
-	{((xy)e)e} && {(x(ye))e} && {x((ye)e)} \\
-	& {(xy)e} && {x(ye)} \\
-	{(xy)(ee)} &&&& {x(y(ee))}
-	\arrow["p", from=1-1, to=1-3]
-	\arrow["q", from=1-3, to=1-5]
-	\arrow["r", from=1-5, to=3-5]
-	\arrow["u"', from=1-1, to=3-1]
-	\arrow["v"', from=3-1, to=3-5]
-	\arrow["{s''}"', from=1-1, to=2-2]
-	\arrow["{q'}"'{pos=0.6}, from=2-2, to=2-4]
-	\arrow["{t'}", from=1-3, to=2-2]
-	\arrow["t", from=1-5, to=2-4]
-	\arrow["s"', from=3-5, to=2-4]
-	\arrow["{s'}"', from=3-1, to=2-2]
-\end{tikzcd}\]
-
-% https://q.uiver.app/?q=WzAsOCxbMiwyLCIoeHkpZSIsWzI0NCw4Niw2MCwxXV0sWzQsMiwieCh5ZSkiLFsyNDQsODYsNjAsMV1dLFswLDBdLFs2LDBdLFsxLDEsIigoeHkpZSllIl0sWzUsMSwiKHgoeWUpKWUiXSxbMyw1LCIoeHkpZSJdLFszLDMsInh5IixbMjQ0LDg2LDYwLDFdXSxbMCwxLCJcXGFscGhhIiwwLHsiY29sb3VyIjpbMjQ0LDg2LDYwXX0sWzI0NCw4Niw2MCwxXV0sWzQsNSwicCJdLFs0LDYsInMnJyIsMix7ImN1cnZlIjoyfV0sWzUsNiwidCciLDAseyJjdXJ2ZSI6LTJ9XSxbNSwxLCJyX3t4KHllKX0iLDIseyJsYWJlbF9wb3NpdGlvbiI6NzB9XSxbNCwwLCJyX3soeHkpZX0iLDAseyJsYWJlbF9wb3NpdGlvbiI6NzB9XSxbMCw3LCJyX3t4eX0iLDIseyJsYWJlbF9wb3NpdGlvbiI6MzAsImNvbG91ciI6WzI0NCw4Niw2MF19LFsyNDQsODYsNjAsMV1dLFsxLDcsInggcl95IiwwLHsibGFiZWxfcG9zaXRpb24iOjIwLCJjb2xvdXIiOlsyNDQsODYsNjBdfSxbMjQ0LDg2LDYwLDFdXSxbNiw3LCJyX3t4eX0iLDFdXQ==
-\[\begin{tikzcd}
-	{} &&&&&& {} \\
-	& {((xy)e)e} &&&& {(x(ye))e} \\
-	&& \textcolor{rgb,255:red,77;green,65;blue,241}{(xy)e} && \textcolor{rgb,255:red,77;green,65;blue,241}{x(ye)} \\
-	&&& \textcolor{rgb,255:red,77;green,65;blue,241}{xy} \\
-	\\
-	&&& {(xy)e}
-	\arrow["\alpha", color={rgb,255:red,77;green,65;blue,241}, from=3-3, to=3-5]
-	\arrow["p", from=2-2, to=2-6]
-	\arrow["{s''}"', curve={height=12pt}, from=2-2, to=6-4]
-	\arrow["{t'}", curve={height=-12pt}, from=2-6, to=6-4]
-	\arrow["{r_{x(ye)}}"'{pos=0.7}, from=2-6, to=3-5]
-	\arrow["{r_{(xy)e}}"{pos=0.7}, from=2-2, to=3-3]
-	\arrow["{r_{xy}}"'{pos=0.3}, color={rgb,255:red,77;green,65;blue,241}, from=3-3, to=4-4]
-	\arrow["{x r_y}"{pos=0.2}, color={rgb,255:red,77;green,65;blue,241}, from=3-5, to=4-4]
-	\arrow["{r_{xy}}"{description}, from=6-4, to=4-4]
-\end{tikzcd}\]
-
-\begin{code}
-
-  have-⊗-assoc-neutral-r : ⊗-assoc-neutral-r X _●_ _✶_ α e 𝓵 𝓻
-  have-⊗-assoc-neutral-r {x} {y} = cancel-left lemma-2
-    where
-      p : ((x ● y) ● e) ● e ＝ (x ● (y ● e)) ● e
-      p = (α x y e) ✶ refl
-      q : (x ● (y ● e)) ● e ＝ x ● ((y ● e) ● e)
-      q = α x (y ● e) e
-      q' : (x ● y) ● e ＝ x ● (y ● e)
-      q' = α _ _ _
-      r : x ● ((y ● e) ● e) ＝ x ● (y ● (e ● e))
-      r = refl ✶ (α y e e)
-      s : x ● (y ● (e ● e)) ＝ x ● (y ● e)
-      s = refl ✶ (refl ✶ 𝓵 e)
-      s' : (x ● y) ● (e ● e) ＝ (x ● y) ● e
-      s' = refl ✶ (𝓵 e)
-      s₁' : (x ● y) ● (e ● e) ＝ (x ● y) ● e
-      s₁' = (refl ✶ refl) ✶ (𝓵 e)
-      s'' : ((x ● y) ● e) ● e ＝ (x ● y) ● e
-      s'' = 𝓻 (x ● y) ✶ refl
-      t : x ● ((y ● e) ● e) ＝ x ● (y ● e)
-      t = refl ✶ ((𝓻 y) ✶ refl)
-      t' : (x ● (y ● e)) ● e ＝ (x ● y) ● e
-      t' = ((refl ✶ 𝓻 y)) ✶ refl
-      u : ((x ● y) ● e) ● e ＝ (x ● y) ● (e ● e)
-      u = α (x ● y) e e
-      v : (x ● y) ● (e ● e) ＝ x ● (y ● (e ● e))
-      v = α _ _ _
-
-      γ δ ε η : ((x ● y) ● e) ● e ＝ x ● (y ● e)
-      γ = p ∙ q ∙ r ∙ s
-      δ = p ∙ t' ∙ q'
-      ε = u ∙ v ∙ s
-      η = s'' ∙ q'
-
-      i : γ ＝ δ
-      i = ((p ∙ q) ∙ r) ∙ s     ＝⟨ ∙assoc (p ∙ q) r s ⟩
-          (p ∙ q) ∙ (r ∙ s)     ＝⟨ ap (p ∙ q ∙_) (𝓘 refl refl (α y e e) (refl ✶ (𝓵 e))) ⟩
-          (p ∙ q) ∙ (refl ✶ (α y e e ∙ (refl ✶ 𝓵 e)))
-                                ＝⟨ ap ((p ∙ q) ∙_) (ap (refl ✶_) φᵢ) ⟩
-          p ∙ q ∙ t             ＝⟨ ∙assoc p q t ⟩
-          p ∙ (q ∙ t)           ＝⟨ ap (p ∙_) (φₐₛ refl (𝓻 y) refl) ⟩
-          p ∙ (t' ∙ q')         ＝⟨ (∙assoc p t' q') ⁻¹ ⟩
-          p ∙ t' ∙ q'            ∎
-
-      ii : γ ＝ ε
-      ii = p ∙ q ∙ r ∙ s        ＝⟨ ap (_∙ s) (∙assoc p q r) ⟩
-           (p ∙ (q ∙ r)) ∙ s    ＝⟨ ap (_∙ s) π ⟩
-           u ∙ v ∙ s            ∎
-
-      iii : ε ＝ η
-      iii = u ∙ v ∙ s           ＝⟨ ∙assoc u v s ⟩
-            u ∙ (v ∙ s)         ＝⟨ ap (u ∙_) (φₐₛ refl refl (𝓵 e)) ⟩
-            u ∙ (s₁' ∙ q')      ＝⟨ ap (u ∙_) (ap (_∙ q') (ap (_✶ (𝓵 e)) 𝓲𝓭)) ⟩
-            u ∙ (s' ∙ q')       ＝⟨ (∙assoc u s' q') ⁻¹ ⟩
-            (u ∙ s') ∙ q'       ＝⟨ ap (_∙ q') φᵢ ⟩
-            s'' ∙ q'            ∎
-
-      iv : δ ＝ η
-      iv = i ⁻¹ ∙ ii ∙ iii
-
-      lemma : p ∙ t' ＝ s''
-      lemma = p ∙ t'                    ＝⟨ ap ((p ∙ t') ∙_) (right-inverse q') ⟩
-              (p ∙ t') ∙ (q' ∙ q' ⁻¹)   ＝⟨ ∙assoc (p ∙ t') q' (q' ⁻¹) ⁻¹ ⟩
-              (p ∙ t' ∙ q') ∙ q' ⁻¹     ＝⟨ ap (_∙ q' ⁻¹) iv ⟩
-              (s'' ∙ q') ∙ q' ⁻¹        ＝⟨ ∙assoc s'' q' (q' ⁻¹) ⟩
-              s'' ∙ (q' ∙ q' ⁻¹)        ＝⟨ ap (s'' ∙_) (right-inverse q' ⁻¹) ⟩
-              s''                       ∎
-
-      μ ν : ((x ● y) ● e) ● e ＝ x ● y
-      μ = ((x ● y) ● e) ● e  ＝⟨ 𝓻 ((x ● y) ● e) ⟩
-           (x ● y) ● e       ＝⟨ α x y e ⟩
-           x ● (y ● e)       ＝⟨ refl ✶ 𝓻 y ⟩
-           x ● y             ∎
-
-      ν = ((x ● y) ● e) ● e ＝⟨ 𝓻 ((x ● y) ● e) ⟩
-          (x ● y) ● e       ＝⟨ 𝓻 (x ● y) ⟩
-          x ● y             ∎
-
-      lemma-2 : μ ＝ ν
-      lemma-2 = 𝓻 ((x ● y) ● e) ∙ (α x y e ∙ refl ✶ 𝓻 y) ＝⟨ (∙assoc (𝓻 ((x ● y) ● e)) (α x y e) (refl ✶ 𝓻 y)) ⁻¹ ⟩
-                (𝓻 ((x ● y) ● e) ∙ α x y e) ∙ refl ✶ 𝓻 y ＝⟨ ap (_∙ refl ✶ 𝓻 y) (φᵣ (α x y e) ⁻¹) ⟩
-                (p ∙ 𝓻 (x ● (y ● e))) ∙ refl ✶ 𝓻 y       ＝⟨ ∙assoc p (𝓻 (x ● (y ● e))) (refl ✶ (𝓻 y)) ⟩
-                p ∙ (𝓻 (x ● (y ● e)) ∙ refl ✶ 𝓻 y)       ＝⟨ ap (p ∙_) (φᵣ (refl ✶ (𝓻 y)) ⁻¹) ⟩
-                p ∙ (t' ∙ 𝓻 (x ● y))                      ＝⟨ ∙assoc p t' (𝓻 (x ● y)) ⁻¹ ⟩
-                (p ∙ t') ∙ 𝓻 (x ● y)                      ＝⟨ ap (_∙ 𝓻 (x ● y)) lemma ⟩
-                s'' ∙ 𝓻 (x ● y)                           ＝⟨ φᵣ (𝓻 (x ● y)) ⟩
-                ν                                          ∎
+      vi : α e x y ◃∙ 𝓵 (x ● y) ◃∎ ＝ₛ ((𝓵 x) ✶ refl) ◃∎
+      vi = α e x y ◃∙ 𝓵 (x ● y) ◃∎
+             ＝ₛ⟨ pre-rotate-in 𝕧 ⟩
+           (𝓵 ((e ● x) ● y) ⁻¹) ◃∙ 𝓵 ((e ● x) ● y) ◃∙ ((𝓵 x) ✶ refl) ◃∎
+             ＝ₛ⟨ 0 & 2 & I ⟩ 
+           ((𝓵 x) ✶ refl) ◃∎
+             ∎ₛ
+             where
+               I : (𝓵 ((e ● x) ● y) ⁻¹) ◃∙ 𝓵 ((e ● x) ● y) ◃∙ [] ＝ₛ []
+               I = ＝ₛ-in (left-inverse (𝓵 ((e ● x) ● y)))
 
 \end{code}
 
@@ -339,26 +338,36 @@ of the others.
 \begin{code}
 
   have-left-right-neutral-compat : left-right-neutral-compatibility X _●_ _✶_ e 𝓵 𝓻
-  have-left-right-neutral-compat = cancel-left (lemma-3 ⁻¹)
+  have-left-right-neutral-compat = ＝ₛ-out (v ⁻¹ₛ)
     where
-      lemma-1 : refl ✶ (𝓵 e) ＝ 𝓵 (e ● e)
-      lemma-1 = refl ✶ (𝓵 e)                        ＝⟨ ap ((refl ✶ (𝓵 e)) ∙_) (right-inverse (𝓵 e)) ⟩
-                (refl ✶ (𝓵 e)) ∙ ((𝓵 e) ∙ (𝓵 e) ⁻¹) ＝⟨ ∙assoc (refl ✶ (𝓵 e)) (𝓵 e) ((𝓵 e) ⁻¹) ⁻¹ ⟩
-                ((refl ✶ (𝓵 e)) ∙ (𝓵 e)) ∙ (𝓵 e) ⁻¹ ＝⟨ ap (_∙ (𝓵 e) ⁻¹) (φₗ (𝓵 e)) ⟩
-                (𝓵 (e ● e) ∙ (𝓵 e)) ∙ (𝓵 e) ⁻¹      ＝⟨ ∙assoc (𝓵 (e ● e)) (𝓵 e) (𝓵 e ⁻¹) ⟩
-                𝓵 (e ● e) ∙ ((𝓵 e) ∙ (𝓵 e) ⁻¹)      ＝⟨ ap (𝓵 (e ● e) ∙_) (right-inverse (𝓵 e) ⁻¹) ⟩
-                𝓵 (e ● e)                           ∎
+      i :  ((𝓻𝓮𝒻𝓵 e) ✶ 𝓵 e) ◃∙ 𝓵 e ◃∎ ＝ₛ 𝓵 (e ● e) ◃∙ 𝓵 e ◃∎
+      i = ＝ₛ-in (φₗ (𝓵 e))
 
-      lemma-2 : (𝓻 e) ✶ (𝓻𝓮𝒻𝓵 e) ＝ (𝓵 e) ✶ (𝓻𝓮𝒻𝓵 e)
-      lemma-2 = (𝓻 e) ✶ (𝓻𝓮𝒻𝓵 e)           ＝⟨ φᵢ ⁻¹ ⟩
-                (α e e e) ∙ (refl ✶ (𝓵 e)) ＝⟨ ap ((α e e e) ∙_) lemma-1 ⟩
-                (α e e e) ∙ (𝓵 (e ● e))    ＝⟨ have-⊗-assoc-neutral-l ⟩
-                (𝓵 e) ✶ (𝓻𝓮𝒻𝓵 e) ∎
+      ii : ((𝓻𝓮𝒻𝓵 e) ✶ 𝓵 e) ◃∎ ＝ₛ 𝓵 (e ● e) ◃∎
+      ii = cancel-right i
 
-      lemma-3 : 𝓻 (e ● e) ∙ (𝓻 e) ＝ 𝓻 (e ● e) ∙ (𝓵 e)
-      lemma-3 = 𝓻 (e ● e) ∙ (𝓻 e)      ＝⟨ φᵣ (𝓻 e) ⁻¹ ⟩
-                ((𝓻 e) ✶ refl) ∙ (𝓻 e) ＝⟨ ap (_∙ (𝓻 e)) lemma-2 ⟩
-                ((𝓵 e) ✶ refl) ∙ (𝓻 e) ＝⟨ φᵣ (𝓵 e) ⟩
-                𝓻 (e ● e) ∙ (𝓵 e)       ∎
+      iii : ((𝓻 e) ✶ (𝓻𝓮𝒻𝓵 e)) ◃∎ ＝ₛ ((𝓵 e) ✶ (𝓻𝓮𝒻𝓵 e)) ◃∎
+      iii = ((𝓻 e) ✶ (𝓻𝓮𝒻𝓵 e)) ◃∎
+              ＝ₛ⟨ ＝ₛ-in (φᵢ ⁻¹) ⟩ 
+            (α e e e) ◃∙ ((𝓻𝓮𝒻𝓵 e) ✶ (𝓵 e)) ◃∎
+              ＝ₛ⟨ 1 & 1 & ii ⟩
+            (α e e e) ◃∙ 𝓵 (e ● e) ◃∎
+              ＝ₛ⟨ ＝ₛ-in have-⊗-assoc-neutral-l ⟩ 
+            ((𝓵 e) ✶ (𝓻𝓮𝒻𝓵 e)) ◃∎
+              ∎ₛ
+
+      iv : 𝓻 (e ● e) ◃∙ (𝓻 e) ◃∎ ＝ₛ 𝓻 (e ● e) ◃∙ (𝓵 e) ◃∎
+      iv = 𝓻 (e ● e) ◃∙ (𝓻 e) ◃∎
+                ＝ₛ⟨ ＝ₛ-in (φᵣ (𝓻 e) ⁻¹) ⟩ 
+           ((𝓻 e) ✶ (𝓻𝓮𝒻𝓵 e)) ◃∙ (𝓻 e) ◃∎
+                ＝ₛ⟨ 0 & 1 & iii ⟩
+           ((𝓵 e) ✶ (𝓻𝓮𝒻𝓵 e)) ◃∙ (𝓻 e) ◃∎
+                ＝ₛ⟨ ＝ₛ-in (φᵣ (𝓵 e)) ⟩ 
+           𝓻 (e ● e) ◃∙ (𝓵 e) ◃∎
+                 ∎ₛ
+
+      v : 𝓻 e ◃∎ ＝ₛ 𝓵 e ◃∎
+      v = cancel-left iv
 
 \end{code}
+
