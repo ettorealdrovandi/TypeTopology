@@ -2,7 +2,9 @@
 Ettore Aldrovandi ealdrovandi@fsu.edu
 Keri D'Angelo kd349@cornell.edu
 
-Begun on July 2022. Reworked starting on September 2022.
+Begun on July 2022.
+Reworked starting on September 2022.
+Substantial modifications on November 2023
 --------------------------------------------------------------------------------
 
 Basic facts about 2-groups, or categorical groups, or gr-categories,
@@ -30,8 +32,12 @@ Thus a categorical group, or 2-group, or gr-category is a type
 equipped with a monoidal groupoid structure satisfying group-like
 axioms.
 
-The idea is to define monoidal groupoids first, and then add the
+The idea is to define monoidal structures first, and then add the
 duality structure.
+
+This file contains the definitions and axioms for the structures. The
+actual types, monoidal groupoids, group-like groupoids are implemented
+in separate modules.
 
 \begin{code}
 
