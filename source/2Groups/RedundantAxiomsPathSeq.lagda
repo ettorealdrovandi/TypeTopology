@@ -16,7 +16,7 @@ open import PathSequences.Type
 open import PathSequences.Reasoning
 open import PathSequences.Rotations
 open import PathSequences.Cancel
-open import 2Groups.Type
+open import 2Groups.Base
 
 \end{code}
 
@@ -42,8 +42,8 @@ module 2Groups.RedundantAxiomsPathSeq
          (X : 𝓤 ̇)
          (_●_ : ⊗-structure X)
          (_✶_ : ⊗-structure-Id X _●_)
-         (𝓘 : ⊗-structure-Id-interchange X _●_ _✶_)
-         (𝓲𝓭 : ⊗-preserves-id X _●_ _✶_)
+         (𝓘 : ⊗-structure-interchange X _●_ _✶_)
+         (𝓲𝓭 : ⊗-structure-preserves-id X _●_ _✶_)
          (α : associative _●_)
          (π : ⊗-assoc-pentagon X _●_ _✶_ α)
          (φₐₛ : ⊗-assoc-compatible-with-＝ X _●_ _✶_ α)

@@ -21,7 +21,9 @@ open import MLTT.Spartan
 open import UF.Subsingletons
 open import Groups.Type
 open import UF.Groupoids
-open import 2Groups.Type 
+open import 2Groups.Base 
+
+\end{code}
 
 open Cat-Group-structure
 
@@ -44,4 +46,3 @@ Group-structure-is-cat-group X .isCatGroup =
 
 Group-is-2-Group : Group 𝓤 → 2-Group 𝓤
 Group-is-2-Group X = ⟨ X ⟩ , Group-structure-is-cat-group  X
-\end{code}
