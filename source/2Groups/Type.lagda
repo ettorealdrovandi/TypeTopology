@@ -77,16 +77,16 @@ corresponds to functoriality with respect to path composition; and
 ⊗-structure-Id X _●_ = ∀ {x x' y y'} → x ＝ x' → y ＝ y'
                       → x ● y ＝ x' ● y'
 
-⊗-structure-Id-interchange : (X : 𝓤 ̇) 
+⊗-structure-interchange : (X : 𝓤 ̇) 
                             → (_●_ : ⊗-structure X)
                             → ⊗-structure-Id X _●_ → 𝓤 ̇
-⊗-structure-Id-interchange X _●_ _✶_ = {x x' x'' y y' y'' : X}
+⊗-structure-interchange X _●_ _✶_ = {x x' x'' y y' y'' : X}
                                       → (p : x ＝ x') (p' : x' ＝ x'')
                                       → (q : y ＝ y') (q' : y' ＝ y'')
                                       → ((p ✶ q) ∙ (p' ✶ q')) ＝ ((p ∙ p') ✶ (q ∙ q'))
 
-⊗-preserves-id : (X : 𝓤 ̇) (_●_ : ⊗-structure X) (_✶_ : ⊗-structure-Id X _●_) → 𝓤 ̇
-⊗-preserves-id X _●_ _✶_ = ∀ {x y} → (𝓻𝓮𝒻𝓵 x) ✶ (𝓻𝓮𝒻𝓵 y) ＝ 𝓻𝓮𝒻𝓵 (x ● y)
+⊗-structure-preserves-id : (X : 𝓤 ̇) (_●_ : ⊗-structure X) (_✶_ : ⊗-structure-Id X _●_) → 𝓤 ̇
+⊗-structure-preserves-id X _●_ _✶_ = ∀ {x y} → (𝓻𝓮𝒻𝓵 x) ✶ (𝓻𝓮𝒻𝓵 y) ＝ 𝓻𝓮𝒻𝓵 (x ● y)
 
 \end{code}
 
@@ -120,8 +120,8 @@ x ⊗ y' ----→ x' ⊗ y'
 module _ (X : 𝓤 ̇)
          (_●_ : ⊗-structure X)
          (_✶_ : ⊗-structure-Id X _●_)
-         (𝓘 : ⊗-structure-Id-interchange X _●_ _✶_)
---         (𝓲𝓭 : ⊗-preserves-id X _●_ _✶_)
+         (𝓘 : ⊗-structure-interchange X _●_ _✶_)
+--         (𝓲𝓭 : ⊗-structure-preserves-id X _●_ _✶_)
            where
 
   ⊗-structure-gray₁ : {x x' y y' : X}
@@ -312,21 +312,22 @@ argument, given below, is in:
 The proofs are in the module 2Groups.RedundantAxioms
 
 
-IV. Preserving refl is a consequence of interchange
-===================================================
+IV. Preserving refl is a consequence of interchange and induction
+=================================================================
 
-We deduce ⊗-preserves-id from the interchange law.
+⊗-structure-preserves-id is a consequence of interchange law and
+induction.
 
 \begin{code}
 
 module _ (X : 𝓤 ̇)
          (_●_ : ⊗-structure X)
          (_✶_ : ⊗-structure-Id X _●_)
-         (𝓘   : ⊗-structure-Id-interchange X _●_ _✶_)
+         (𝓘   : ⊗-structure-interchange X _●_ _✶_)
            where
 
-  ⊗-structure-preserves-id : ⊗-preserves-id X _●_ _✶_
-  ⊗-structure-preserves-id {x} {y} = (𝓻𝓮𝒻𝓵 x) ✶ (𝓻𝓮𝒻𝓵 y)   ＝⟨ ii ⁻¹ ⟩
+  ⊗-structure-has-preserves-id : ⊗-structure-preserves-id X _●_ _✶_
+  ⊗-structure-has-preserves-id {x} {y} = (𝓻𝓮𝒻𝓵 x) ✶ (𝓻𝓮𝒻𝓵 y)   ＝⟨ ii ⁻¹ ⟩
                                      𝓻𝓮𝒻𝓵 (x ● y) ∎
                                        where
                                          i : (𝓻𝓮𝒻𝓵 x) ✶ (𝓻𝓮𝒻𝓵 y) ＝ (𝓻𝓮𝒻𝓵 x) ✶ (𝓻𝓮𝒻𝓵 y) ∙ (𝓻𝓮𝒻𝓵 x) ✶ (𝓻𝓮𝒻𝓵 y)
@@ -343,7 +344,7 @@ module _ (X : 𝓤 ̇)
 V. Lifting the structure on the carrier to identity types
 =========================================================
 
-It the produc structure on identity types can be obtained from a given
+The product structure on identity types can be obtained from a given
 ⊗-structure X → X → X using ap. In fact, this can be done in several
 ways, but usign ap₂ is the preferred one, because it simultaneously
 lifts to both sides of the ⊗-structure. The lifted structure has
@@ -364,7 +365,7 @@ interchange and it preserves refl.
 ⊗-structure-to-Id₂-∙ _●_ p p' q q' = (ap₂-∙ _●_ p p' q q') ⁻¹
 
 ⊗-structure-to-Id₂-has-interchange : {X : 𝓤 ̇} (_●_ : ⊗-structure X)
-                                   → ⊗-structure-Id-interchange X _●_ (⊗-structure-to-Id₂ X _●_)
+                                   → ⊗-structure-interchange X _●_ (⊗-structure-to-Id₂ X _●_)
 ⊗-structure-to-Id₂-has-interchange = ⊗-structure-to-Id₂-∙
 
 ⊗-structure-to-Id₂-refl : {X : 𝓤 ̇} (_●_ : ⊗-structure X) {x y : X}
@@ -376,7 +377,7 @@ interchange and it preserves refl.
 ⊗-structure-to-Id₂-refl' _●_ = ap₂-refl-right _●_ refl
 
 ⊗-structure-to-Id₂-has-preserves-id : {X : 𝓤 ̇} (_●_ : ⊗-structure X)
-                                     → ⊗-preserves-id X _●_ (⊗-structure-to-Id₂ X _●_)
+                                     → ⊗-structure-preserves-id X _●_ (⊗-structure-to-Id₂ X _●_)
 ⊗-structure-to-Id₂-has-preserves-id = ⊗-structure-to-Id₂-refl
 
 \end{code}
@@ -466,7 +467,7 @@ with path composition.
 
 \begin{code}
 
-  ⊗-structure-to-Id-has-interchange : ⊗-structure-Id-interchange X _●_ (⊗-structure-to-Id X _●_)
+  ⊗-structure-to-Id-has-interchange : ⊗-structure-interchange X _●_ (⊗-structure-to-Id X _●_)
   ⊗-structure-to-Id-has-interchange {x} {x'} {.x'} {y} {.y} {y''} p refl refl q' =
        ⊗-structure-to-Id X _●_ p refl ∙ ⊗-structure-to-Id X _●_ refl q'         ＝⟨ refl ⟩
        ⊗-structure-to-Id X _●_ p refl ∙ (refl ∙ ⊗-structure-ap-right _●_ x' q') ＝⟨ refl ⟩
@@ -541,8 +542,8 @@ are the identity.
 module _ (X : 𝓤 ̇) 
          (_●_ : ⊗-structure X)
          (_✶_ : ⊗-structure-Id X _●_)
-         (𝓘 : ⊗-structure-Id-interchange X _●_ _✶_)
-         (𝓲𝓭 : ⊗-preserves-id X _●_ _✶_)
+         (𝓘 : ⊗-structure-interchange X _●_ _✶_)
+         (𝓲𝓭 : ⊗-structure-preserves-id X _●_ _✶_)
            where
 
   ⊗-inv-structure : (e : X)
@@ -606,8 +607,8 @@ record monoidal-grpd-axioms (X : 𝓤 ̇)
     is-assoc : associative _●_
     has-pentagon : ⊗-assoc-pentagon X _●_ _✶_ is-assoc
     assoc-comp-id : ⊗-assoc-compatible-with-＝ X _●_ _✶_ is-assoc
-    interchange : ⊗-structure-Id-interchange X _●_ _✶_
-    preserves-refl : ⊗-preserves-id X _●_ _✶_
+    interchange : ⊗-structure-interchange X _●_ _✶_
+    preserves-refl : ⊗-structure-preserves-id X _●_ _✶_
 
     unit-left : left-neutral e _●_
     unit-right : right-neutral e _●_
