@@ -41,7 +41,7 @@ open import MLTT.Spartan
 open import UF.Base
 open import UF.Groupoids
 
-module 2Groups.Type where
+module 2Groups.Base where
 
 \end{code}
 
