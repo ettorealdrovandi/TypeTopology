@@ -47,7 +47,7 @@ open import MLTT.Spartan
 open import UF.Base
 open import UF.Groupoids
 
-module 2Groups.Base where
+module CategoricalAlgebra.Base where
 
 \end{code}
 
@@ -548,8 +548,8 @@ are the identity.
 module _ (X : 𝓤 ̇) 
          (_●_ : ⊗-structure X)
          (_✶_ : ⊗-structure-Id X _●_)
-         (𝓘 : ⊗-structure-interchange X _●_ _✶_)
-         (𝓲𝓭 : ⊗-structure-preserves-id X _●_ _✶_)
+--         (𝓘 : ⊗-structure-interchange X _●_ _✶_)
+--         (𝓲𝓭 : ⊗-structure-preserves-id X _●_ _✶_)
            where
 
   ⊗-inv-structure : (e : X)

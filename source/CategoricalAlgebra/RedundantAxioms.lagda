@@ -16,7 +16,7 @@ open import PathSequences.Type
 open import PathSequences.Reasoning
 open import PathSequences.Rotations
 open import PathSequences.Cancel
-open import 2Groups.Base
+open import CategoricalAlgebra.Base
 
 \end{code}
 
@@ -38,7 +38,7 @@ interchange and preservation of refl be induced from
 
 \begin{code}
 
-module 2Groups.RedundantAxioms
+module CategoricalAlgebra.RedundantAxioms
          (X : 𝓤 ̇)
          (_●_ : ⊗-structure X)
          (_✶_ : ⊗-structure-Id X _●_)
