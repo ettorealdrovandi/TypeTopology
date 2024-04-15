@@ -12,9 +12,9 @@ open import MLTT.Spartan
 --open import UF.Base 
 open import UF.Groupoids
 open import CategoricalAlgebra.Base
-open import CategoricalAlgebra.2Monoid
+open import CategoricalAlgebra.MonoidalGroupoids
 
-module CategoricalAlgebra.2Group where
+module CategoricalAlgebra.CatGroups where
 \end{code}
 
 

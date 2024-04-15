@@ -21,8 +21,8 @@ open import MLTT.Spartan
 open import UF.Subsingletons
 open import Groups.Type
 open import UF.Groupoids
-open import CategoricalAlgebra.2Monoid
-open import CategoricalAlgebra.2Group
+open import CategoricalAlgebra.MonoidalGroupoids
+open import CategoricalAlgebra.CatGroups
 
 
 open Cat-Group-structure
@@ -30,18 +30,19 @@ open Cat-Group-structure
 Group-structure-is-cat-group : (X : Group 𝓤)
                               → Cat-Group-structure ⟨ X ⟩
 
-_⊗_ (Group-structure-is-cat-group X) = multiplication X
-e (Group-structure-is-cat-group X) = unit X
-is-cat-group (Group-structure-is-cat-group X) = record { is-monoidal-grpd = record
-                                                                             { is-grpd = sets-are-groupoids (groups-are-sets X)
-                                                                             ; is-assoc = assoc X
-                                                                             ; has-pentagon = groups-are-sets X _ _
-                                                                             ; unit-left = Groups.Type.unit-left X
-                                                                             ; unit-right = Groups.Type.unit-right X
-                                                                             ; has-assoc-neutral = groups-are-sets X _ _
-                                                                             } ;
-                                                         ⊗-inv = λ x → (inv X x) , ((inv-right X x) , (inv-left X x ⁻¹)) ;
-                                                         ⊗-inv-axioms = λ _ → (groups-are-sets X _ _) , (groups-are-sets X _ _ ) }
+Group-structure-is-cat-group X ._⊗_ = multiplication X
+Group-structure-is-cat-group X .e   = unit X
+Group-structure-is-cat-group X .is-cat-group =
+  record { is-monoidal-grpd = record
+                                { is-grpd = sets-are-groupoids (groups-are-sets X)
+                                ; is-assoc = assoc X
+                                ; has-pentagon = groups-are-sets X _ _
+                                ; unit-left = unit-left X
+                                ; unit-right = unit-right X
+                                ; has-assoc-neutral = groups-are-sets X _ _
+                                } ;
+            ⊗-inv = λ x → (inv X x) , ((inv-right X x) , (inv-left X x ⁻¹)) ;
+            ⊗-inv-axioms = λ _ → (groups-are-sets X _ _) , (groups-are-sets X _ _ ) }
 
 Group-is-2-Group : Group 𝓤 → 2-Group 𝓤
 Group-is-2-Group X = ⟨ X ⟩ , Group-structure-is-cat-group  X

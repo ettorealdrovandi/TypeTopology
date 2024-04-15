@@ -13,7 +13,7 @@ open import MLTT.Spartan
 open import UF.Groupoids
 open import CategoricalAlgebra.Base
 
-module CategoricalAlgebra.2Monoid where
+module CategoricalAlgebra.MonoidalGroupoids where
 \end{code}
 
 Monoidal Groupoids
